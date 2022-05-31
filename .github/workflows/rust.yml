@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Format
+      run: cargo fmt --all -- --check
     - name: Lint
       run: cargo clippy
     - name: Build
