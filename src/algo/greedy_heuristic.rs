@@ -73,15 +73,30 @@ mod tests {
       (15, 13),
     ]);
 
-    print_dot(&cyclic_graph);
+    test_feedback_arc_set(&cyclic_graph, 4, true, true);
+  }
 
-    let removable_edges = GreedyHeuristic {}.compute(&cyclic_graph);
-    print_edges(&removable_edges);
+  fn test_feedback_arc_set(
+    cyclic_graph: &Graph<i32, ()>,
+    expected_set_count: usize,
+    should_print_edges: bool,
+    should_print_dot: bool,
+  ) {
+    if should_print_dot {
+      print_dot("Cyclic Graph:", cyclic_graph)
+    };
 
-    let acyclic_graph = remove_edges(&cyclic_graph, &removable_edges);
-    print_dot(&acyclic_graph);
+    let removable_edges = GreedyHeuristic {}.compute(cyclic_graph);
+    if should_print_edges {
+      print_edges(&removable_edges);
+    }
 
-    assert_eq!(removable_edges.len(), 4);
+    let acyclic_graph = remove_edges(cyclic_graph, &removable_edges);
+    if should_print_dot {
+      print_dot("Acyclic Graph:", &acyclic_graph);
+    }
+
+    assert_eq!(removable_edges.len(), expected_set_count);
     assert!(!is_cyclic_directed(&acyclic_graph));
   }
 
@@ -105,11 +120,12 @@ mod tests {
     acyclic_graph
   }
 
-  fn print_dot(graph: &Graph<i32, ()>) {
+  fn print_dot(prefix: &str, graph: &Graph<i32, ()>) {
+    println!("{}", prefix);
     println!(
       "{:?}",
       // zeigt in IntelliJ Fehler (Dot doesn't implement Debug) an, aber läuft.
-      Dot::with_config(graph, &[Config::EdgeNoLabel, Config::NodeIndexLabel])
+      Dot::with_config(graph, &[Config::EdgeNoLabel, Config::NodeIndexLabel]),
     );
   }
 }
