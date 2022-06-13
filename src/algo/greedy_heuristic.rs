@@ -76,12 +76,22 @@ mod tests {
     print_dot(&cyclic_graph);
 
     let removable_edges = GreedyHeuristic {}.compute(&cyclic_graph);
-    let acyclic_graph = remove_edges(&cyclic_graph, &removable_edges);
+    print_edges(&removable_edges);
 
+    let acyclic_graph = remove_edges(&cyclic_graph, &removable_edges);
     print_dot(&acyclic_graph);
 
     assert_eq!(removable_edges.len(), 4);
     assert!(!is_cyclic_directed(&acyclic_graph));
+  }
+
+  fn print_edges(removable_edges: &Vec<EdgeReference<()>>) {
+    println!("Edges to be removed:");
+    removable_edges
+      .iter()
+      .map(|edge| (edge.source(), edge.target()))
+      .for_each(|(source, target)| println!("\t{:?} -> {:?}", source.index(), target.index()));
+    println!();
   }
 
   fn remove_edges(
