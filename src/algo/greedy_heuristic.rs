@@ -22,7 +22,7 @@ mod tests {
   use crate::feedback_arc_set::FeedbackArcSet;
   use petgraph::algo::is_cyclic_directed;
   use petgraph::dot::{Config, Dot};
-  use petgraph::graph::{DiGraph, EdgeIndex, EdgeReference};
+  use petgraph::graph::{DiGraph, EdgeReference};
   use petgraph::visit::EdgeRef;
   use petgraph::Graph;
 
@@ -33,7 +33,8 @@ mod tests {
     let edges = GreedyHeuristic {}.compute(&clique);
 
     assert_eq!(edges.len(), 1);
-    assert_eq!(edges.get(0).unwrap().id(), EdgeIndex::new(1));
+    assert_eq!(edges.get(0).unwrap().source().index(), 2);
+    assert_eq!(edges.get(0).unwrap().target().index(), 3);
   }
 
   #[test]
@@ -73,10 +74,11 @@ mod tests {
       (15, 13),
     ]);
 
-    test_feedback_arc_set(&cyclic_graph, 4, true, true);
+    test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 4, true, true);
   }
 
-  fn test_feedback_arc_set(
+  fn test_feedback_arc_set<A: FeedbackArcSet>(
+    algorithm: A,
     cyclic_graph: &Graph<i32, ()>,
     expected_set_count: usize,
     should_print_edges: bool,
@@ -86,7 +88,7 @@ mod tests {
       print_dot("Cyclic Graph:", cyclic_graph)
     };
 
-    let removable_edges = GreedyHeuristic {}.compute(cyclic_graph);
+    let removable_edges = algorithm.compute(cyclic_graph);
     if should_print_edges {
       print_edges(&removable_edges);
     }
@@ -100,7 +102,7 @@ mod tests {
     assert!(!is_cyclic_directed(&acyclic_graph));
   }
 
-  fn print_edges(removable_edges: &Vec<EdgeReference<()>>) {
+  fn print_edges(removable_edges: &[EdgeReference<()>]) {
     println!("Edges to be removed:");
     removable_edges
       .iter()
