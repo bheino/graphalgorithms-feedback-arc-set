@@ -1,5 +1,6 @@
 mod algo;
 mod feedback_arc_set;
+mod tools;
 
 #[cfg(test)]
 mod tests {
