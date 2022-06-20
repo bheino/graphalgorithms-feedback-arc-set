@@ -7,6 +7,7 @@ use std::io::BufRead;
 pub struct Metis {
   filename: String,
   edges: Vec<(usize, usize)>,
+  edge_count: usize,
 }
 
 impl Metis {
@@ -15,6 +16,7 @@ impl Metis {
     Self {
       filename: file.to_string(),
       edges: vec![],
+      edge_count: 0,
     }
   }
 
@@ -23,33 +25,41 @@ impl Metis {
   #[allow(dead_code)]
   fn lines(&self) -> io::Result<io::Lines<io::BufReader<File>>> {
     let file = File::open(&self.filename)?;
-    // TODO Error handling?
     Ok(io::BufReader::new(file).lines())
   }
 
   #[allow(dead_code)]
   pub fn parse(&mut self) {
-    // TODO Error handling?
-    if let Ok(mut lines) = self.lines() {
-      lines.next(); // Ignore first line
-                    // TODO Get Indices (= Node numbers from 1..n) right because idx is currently incremented on comment lines too!
-      for (idx, line) in lines.enumerate() {
-        // TODO Error handling?
-        if let Ok(content) = line {
-          self.parse_line(content, idx);
+    if let Ok(lines) = self.lines() {
+      let mut idx = 0;
+      for line in lines.flatten() {
+        if idx != 0 {
+          idx = self.parse_content_line(line, idx);
+        } else {
+          self.parse_header_line(line);
+          idx += 1;
         }
       }
     }
   }
 
-  fn parse_line(&mut self, line: String, source: usize) {
-    if line.is_empty() || line.starts_with('%') {
-      return;
+  fn parse_content_line(&mut self, line: String, idx: usize) -> usize {
+    if line.starts_with('%') {
+      return idx;
     }
 
-    for edge in line.split_ascii_whitespace() {
+    for edge in line.split_whitespace() {
       let target = edge.parse::<usize>().unwrap();
-      self.edges.push((source, target));
+      self.edges.push((idx, target));
+    }
+
+    idx + 1
+  }
+
+  fn parse_header_line(&mut self, header: String) {
+    let parts: Vec<&str> = header.split_whitespace().collect();
+    if parts.len() >= 2 {
+      self.edge_count = parts[1].parse::<usize>().unwrap();
     }
   }
 }
@@ -60,11 +70,20 @@ mod tests {
 
   #[test]
   fn can_parse_e_001() {
-    let mut e_001 = Metis::new("test/resources/e_001");
+    can_parse_metis_file("test/resources/e_001", 651);
+  }
+
+  #[test]
+  fn can_parse_e_001_with_comments() {
+    can_parse_metis_file("test/resources/e_001_with_comments", 651);
+  }
+
+  fn can_parse_metis_file(path: &str, expected_edge_count: usize) {
+    let mut e_001 = Metis::new(path);
     e_001.parse();
 
-    // TODO Implement first-line parsing of edge count, so the test can verify correctly
-    assert_eq!(e_001.edges.len(), 651);
+    assert_eq!(e_001.edge_count, expected_edge_count);
+    assert_eq!(e_001.edges.len(), e_001.edge_count);
 
     println!("{:?}", e_001.edges);
   }
