@@ -79,14 +79,12 @@ mod tests {
 
   #[test]
   fn works_on_h_001() {
-    // todo!(Is still cyclic with h001 !?)
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
     test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 143, true, false);
   }
 
   #[test]
   fn works_on_h_025() {
-    // todo!(Is still cyclic with h001 !?)
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
     test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 1574, true, false);
   }
