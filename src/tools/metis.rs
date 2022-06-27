@@ -1,3 +1,4 @@
+use petgraph::graph::DefaultIx;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
@@ -5,7 +6,7 @@ use std::io::BufRead;
 // Input format described here: https://pacechallenge.org/2022/tracks/
 pub struct Metis {
   filename: String,
-  edges: Vec<(usize, usize)>,
+  edges: Vec<(u32, u32)>,
   edge_count: usize,
 }
 
@@ -39,13 +40,13 @@ impl Metis {
     }
   }
 
-  fn parse_content_line(&mut self, line: String, idx: usize) -> usize {
+  fn parse_content_line(&mut self, line: String, idx: u32) -> u32 {
     if line.starts_with('%') {
       return idx;
     }
 
     for edge in line.split_whitespace() {
-      let target = edge.parse::<usize>().unwrap();
+      let target = edge.parse::<u32>().unwrap();
       self.edges.push((idx, target));
     }
 
@@ -58,6 +59,10 @@ impl Metis {
       self.edge_count = parts[1].parse::<usize>().unwrap();
     }
   }
+
+  pub fn edges(&self) -> &[(DefaultIx, DefaultIx)] {
+    self.edges.as_slice()
+  }
 }
 
 #[cfg(test)]
@@ -66,12 +71,12 @@ mod tests {
 
   #[test]
   fn can_parse_e_001() {
-    can_parse_metis_file("test/resources/e_001", 651);
+    can_parse_metis_file("test/resources/exact/e_001", 651);
   }
 
   #[test]
   fn can_parse_e_001_with_comments() {
-    can_parse_metis_file("test/resources/e_001_with_comments", 651);
+    can_parse_metis_file("test/resources/exact/e_001_with_comments", 651);
   }
 
   fn can_parse_metis_file(path: &str, expected_edge_count: usize) {
