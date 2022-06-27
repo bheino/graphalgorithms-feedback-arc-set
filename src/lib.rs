@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod algo;
 mod feedback_arc_set;
 mod tools;

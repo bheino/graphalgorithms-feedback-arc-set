@@ -4,7 +4,6 @@ use std::io;
 use std::io::BufRead;
 
 // Input format described here: https://pacechallenge.org/2022/tracks/
-#[allow(dead_code)]
 pub struct Metis {
   filename: String,
   edges: Vec<(u32, u32)>,
@@ -12,7 +11,6 @@ pub struct Metis {
 }
 
 impl Metis {
-  #[allow(dead_code)]
   pub fn new(file: &str) -> Self {
     Self {
       filename: file.to_string(),
@@ -23,13 +21,11 @@ impl Metis {
 
   // Based on: https://doc.rust-lang.org/rust-by-example/std_misc/file/read_lines.html
   // Returns an Iterator to the Reader of the lines of the file.
-  #[allow(dead_code)]
   fn lines(&self) -> io::Result<io::Lines<io::BufReader<File>>> {
     let file = File::open(&self.filename)?;
     Ok(io::BufReader::new(file).lines())
   }
 
-  #[allow(dead_code)]
   pub fn parse(&mut self) {
     if let Ok(lines) = self.lines() {
       let mut idx = 0;
