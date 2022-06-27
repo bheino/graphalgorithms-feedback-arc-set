@@ -71,12 +71,12 @@ mod tests {
 
   #[test]
   fn can_parse_e_001() {
-    can_parse_metis_file("test/resources/e_001", 651);
+    can_parse_metis_file("test/resources/exact/e_001", 651);
   }
 
   #[test]
   fn can_parse_e_001_with_comments() {
-    can_parse_metis_file("test/resources/e_001_with_comments", 651);
+    can_parse_metis_file("test/resources/exact/e_001_with_comments", 651);
   }
 
   fn can_parse_metis_file(path: &str, expected_edge_count: usize) {

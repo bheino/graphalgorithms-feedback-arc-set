@@ -80,7 +80,8 @@ mod tests {
 
   #[test]
   fn works_on_e_001() {
-    let cyclic_graph = graph_from_file("test/resources/e_001");
+    // todo!(Is still cyclic with h001 !?)
+    let cyclic_graph = graph_from_file("test/resources/exact/e_001");
     test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 7, true, true);
   }
 
