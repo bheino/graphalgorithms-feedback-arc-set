@@ -1,3 +1,4 @@
+use petgraph::graph::DefaultIx;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
@@ -6,7 +7,7 @@ use std::io::BufRead;
 #[allow(dead_code)]
 pub struct Metis {
   filename: String,
-  edges: Vec<(usize, usize)>,
+  edges: Vec<(u32, u32)>,
   edge_count: usize,
 }
 
@@ -43,13 +44,13 @@ impl Metis {
     }
   }
 
-  fn parse_content_line(&mut self, line: String, idx: usize) -> usize {
+  fn parse_content_line(&mut self, line: String, idx: u32) -> u32 {
     if line.starts_with('%') {
       return idx;
     }
 
     for edge in line.split_whitespace() {
-      let target = edge.parse::<usize>().unwrap();
+      let target = edge.parse::<u32>().unwrap();
       self.edges.push((idx, target));
     }
 
@@ -61,6 +62,10 @@ impl Metis {
     if parts.len() >= 2 {
       self.edge_count = parts[1].parse::<usize>().unwrap();
     }
+  }
+
+  pub fn edges(&self) -> &[(DefaultIx, DefaultIx)] {
+    self.edges.as_slice()
   }
 }
 
