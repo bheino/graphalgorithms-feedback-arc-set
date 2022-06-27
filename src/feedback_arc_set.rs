@@ -1,4 +1,4 @@
-use petgraph::graph::GraphIndex;
+use petgraph::stable_graph::GraphIndex;
 use petgraph::visit::{GraphProp, IntoEdgeReferences, NodeCount};
 use petgraph::Directed;
 

@@ -1,5 +1,5 @@
 use crate::feedback_arc_set::FeedbackArcSet;
-use petgraph::graph::GraphIndex;
+use petgraph::stable_graph::GraphIndex;
 use petgraph::visit::{GraphProp, IntoEdgeReferences, NodeCount};
 use petgraph::Directed;
 
@@ -23,13 +23,12 @@ mod tests {
   use crate::tools::metis::Metis;
   use petgraph::algo::is_cyclic_directed;
   use petgraph::dot::{Config, Dot};
-  use petgraph::graph::{DiGraph, EdgeReference};
+  use petgraph::stable_graph::{EdgeReference, StableDiGraph, StableGraph};
   use petgraph::visit::EdgeRef;
-  use petgraph::Graph;
 
   #[test]
   fn deterministic_on_simple_clique() {
-    let clique = DiGraph::<i32, ()>::from_edges(&[(1, 2), (2, 3), (3, 1)]);
+    let clique = StableDiGraph::<i32, ()>::from_edges(&[(1, 2), (2, 3), (3, 1)]);
 
     let edges = GreedyHeuristic {}.compute(&clique);
 
@@ -40,7 +39,7 @@ mod tests {
 
   #[test]
   fn works_on_multiple_cliques() {
-    let cyclic_graph = DiGraph::<i32, ()>::from_edges(&[
+    let cyclic_graph = StableDiGraph::<i32, ()>::from_edges(&[
       (0, 1),
       (0, 7),
       (1, 2),
@@ -79,22 +78,29 @@ mod tests {
   }
 
   #[test]
-  fn works_on_e_001() {
+  fn works_on_h_001() {
     // todo!(Is still cyclic with h001 !?)
-    let cyclic_graph = graph_from_file("test/resources/exact/e_001");
-    test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 7, true, true);
+    let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
+    test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 143, true, false);
   }
 
-  fn graph_from_file(filename: &str) -> Graph<i32, ()> {
+  #[test]
+  fn works_on_h_025() {
+    // todo!(Is still cyclic with h001 !?)
+    let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
+    test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 1574, true, false);
+  }
+
+  fn graph_from_file(filename: &str) -> StableGraph<i32, ()> {
     let mut e_001 = Metis::new(filename);
     e_001.parse();
-    let cyclic_graph = DiGraph::<i32, ()>::from_edges(e_001.edges());
+    let cyclic_graph = StableDiGraph::<i32, ()>::from_edges(e_001.edges());
     cyclic_graph
   }
 
   fn test_feedback_arc_set<A: FeedbackArcSet>(
     algorithm: A,
-    cyclic_graph: &Graph<i32, ()>,
+    cyclic_graph: &StableGraph<i32, ()>,
     expected_set_count: usize,
     should_print_edges: bool,
     should_print_dot: bool,
@@ -129,9 +135,9 @@ mod tests {
   }
 
   fn remove_edges(
-    cyclic_graph: &Graph<i32, ()>,
+    cyclic_graph: &StableGraph<i32, ()>,
     removable_edges: &Vec<EdgeReference<()>>,
-  ) -> Graph<i32, ()> {
+  ) -> StableGraph<i32, ()> {
     let mut acyclic_graph = cyclic_graph.clone();
     for edge in removable_edges.as_slice() {
       acyclic_graph.remove_edge(edge.id());
@@ -139,7 +145,7 @@ mod tests {
     acyclic_graph
   }
 
-  fn print_dot(prefix: &str, graph: &Graph<i32, ()>) {
+  fn print_dot(prefix: &str, graph: &StableGraph<i32, ()>) {
     println!("{}", prefix);
     println!(
       "{:?}",

@@ -1,4 +1,4 @@
-use petgraph::graph::DefaultIx;
+use petgraph::stable_graph::DefaultIx;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
