@@ -14,4 +14,5 @@
 ## Used Libraries
 - Benchmarking: https://docs.rs/criterion/latest/criterion/
 - Graph datastructure & Greedy Feedbac Arc Set Algorithm: https://docs.rs/petgraph/latest/petgraph/
+- Coverage: https://github.com/xd009642/tarpaulin
 
