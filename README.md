@@ -1,5 +1,6 @@
 # graphalgorithms-feedback-arc-set
 [![CI](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml)
+[![Coverage](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml)
 
 ## Used Literature
 - Wikipedia: https://en.wikipedia.org/wiki/Feedback_arc_set
