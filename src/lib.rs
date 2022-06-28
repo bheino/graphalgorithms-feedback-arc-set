@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-mod algo;
-mod feedback_arc_set;
-mod tools;
+pub mod algo;
+pub mod feedback_arc_set;
+pub mod tools;
 
 #[cfg(test)]
 mod tests {

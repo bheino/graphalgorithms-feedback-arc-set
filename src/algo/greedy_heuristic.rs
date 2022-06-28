@@ -20,7 +20,7 @@ impl FeedbackArcSet for GreedyHeuristic {
 mod tests {
   use crate::algo::greedy_heuristic::GreedyHeuristic;
   use crate::feedback_arc_set::FeedbackArcSet;
-  use crate::tools::metis::Metis;
+  use crate::tools::metis::graph_from_file;
   use petgraph::algo::is_cyclic_directed;
   use petgraph::dot::{Config, Dot};
   use petgraph::stable_graph::{EdgeReference, StableDiGraph, StableGraph};
@@ -87,13 +87,6 @@ mod tests {
   fn works_on_h_025() {
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
     test_feedback_arc_set(GreedyHeuristic {}, &cyclic_graph, 1574, true, false);
-  }
-
-  fn graph_from_file(filename: &str) -> StableGraph<i32, ()> {
-    let mut e_001 = Metis::new(filename);
-    e_001.parse();
-    let cyclic_graph = StableDiGraph::<i32, ()>::from_edges(e_001.edges());
-    cyclic_graph
   }
 
   fn test_feedback_arc_set<A: FeedbackArcSet>(

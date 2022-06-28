@@ -1,4 +1,4 @@
-use petgraph::stable_graph::DefaultIx;
+use petgraph::stable_graph::{DefaultIx, StableDiGraph, StableGraph};
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
@@ -63,6 +63,12 @@ impl Metis {
   pub fn edges(&self) -> &[(DefaultIx, DefaultIx)] {
     self.edges.as_slice()
   }
+}
+
+pub fn graph_from_file(filename: &str) -> StableGraph<i32, ()> {
+  let mut parser = Metis::new(filename);
+  parser.parse();
+  StableDiGraph::<i32, ()>::from_edges(parser.edges())
 }
 
 #[cfg(test)]
