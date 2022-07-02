@@ -7,7 +7,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
   let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
   let algo = GreedyHeuristic {};
   c.bench_function("greedy heuristic h_025", |b| {
-    b.iter(|| algo.compute(&cyclic_graph))
+    b.iter(|| algo.compute_fas(&cyclic_graph))
   });
 }
 

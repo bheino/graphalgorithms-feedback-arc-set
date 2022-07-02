@@ -6,7 +6,7 @@ use petgraph::Directed;
 pub struct GreedyHeuristic {}
 
 impl FeedbackArcSet for GreedyHeuristic {
-  fn compute<G>(&self, g: G) -> Vec<G::EdgeRef>
+  fn compute_fas<G>(&self, g: G) -> Vec<G::EdgeRef>
   where
     G: IntoEdgeReferences + GraphProp<EdgeType = Directed>,
     G::NodeId: GraphIndex,

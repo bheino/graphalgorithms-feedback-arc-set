@@ -1,14 +1,17 @@
 use petgraph::stable_graph::GraphIndex;
-use petgraph::visit::{GraphProp, IntoEdgeReferences, NodeCount};
+use petgraph::visit::{
+  GraphProp, IntoEdgeReferences, IntoNeighbors, IntoNodeIdentifiers, NodeCount, NodeIndexable,
+};
 use petgraph::Directed;
 
 pub trait FeedbackArcSet {
   /// Finds a feedback arc set: a set of edges in the given directed graph, which when removed, make the graph acyclic.
-  fn compute<G>(&self, g: G) -> Vec<G::EdgeRef>
+  fn compute_fas<G>(&self, g: G) -> Vec<G::EdgeRef>
   where
     G: IntoEdgeReferences + GraphProp<EdgeType = Directed>,
     G::NodeId: GraphIndex,
-    G: NodeCount;
+    G: NodeCount,
+    G: IntoNodeIdentifiers + IntoNeighbors + NodeIndexable;
 }
 
 #[cfg(test)]
@@ -25,7 +28,7 @@ mod tests {
   fn deterministic_on_simple_clique() {
     let clique = StableDiGraph::<i32, ()>::from_edges(&[(1, 2), (2, 3), (3, 1)]);
 
-    let edges = GreedyHeuristic {}.compute(&clique);
+    let edges = GreedyHeuristic {}.compute_fas(&clique);
 
     assert_eq!(edges.len(), 1);
     assert_eq!(edges.get(0).unwrap().source().index(), 2);
@@ -97,7 +100,7 @@ mod tests {
       print_dot("Cyclic Graph:", cyclic_graph)
     };
 
-    let removable_edges = algorithm.compute(cyclic_graph);
+    let removable_edges = algorithm.compute_fas(cyclic_graph);
     if should_print_edges {
       print_edges(&removable_edges);
     }
