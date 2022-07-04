@@ -8,6 +8,20 @@ use petgraph::Directed;
 
 struct DivideAndConquerExact {}
 
+/*
+Ich mächte den Bisection Algorithmus austauschbar machen, indem per ::new(algo) eine konkrete
+Implementierung des Algorithmus übergeben wird, die den Trait GraphBisection implementiert.
+
+Option 1: GraphBisection so lassen (mit generischem Typparameter).
+Problem/Nachteile: Ablegen des Algo in Struct nicht möglich, da Object Safety regeln verletzt werden.
+https://doc.rust-lang.org/reference/items/traits.html#object-safety
+
+Option 2: GraphBisection anpassen (Generic entfernen, stattdessen Graph oder StableGraph als
+Funktionsparameter verwenden.
+Problem/Nachteile: ??, vermutlich müssten wir beim Trait FeedbackArcSet dann das gleiche machen.
+Aber ist das schlecht?
+ */
+
 impl FeedbackArcSet for DivideAndConquerExact {
   fn compute_fas<G>(&self, g: G) -> Vec<G::EdgeRef>
   where
