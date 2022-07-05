@@ -10,6 +10,7 @@
 - Algorithm implementations:
   - Exact (greedy): https://www.mat.univie.ac.at/~herman/fwf-P27891-N32/minimum_feedback_arc_set.pdf
   - Exact (divide and conquer): https://link.springer.com/article/10.1023/A:1011315014322
+  - https://www.mat.univie.ac.at/~herman/fwf-P27891-N32/minimum_feedback_arc_set.pdf
 
 ## Used Libraries
 - Benchmarking: https://docs.rs/criterion/latest/criterion/
