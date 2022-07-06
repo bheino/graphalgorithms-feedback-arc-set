@@ -15,7 +15,7 @@
   - Problem Description: https://tracer.lcc.uma.es/problems/bisect/bisect.htm
   - Heuristic (Stochastical Evolution) Algorithm: See FAS Heuristic Paper
   - Heuristic (Dynamic Clustering) Algorithm: See FAS Heuristic Paper
-- Strongly-Connected-Components:
+- Strongly-Connected-Components (used in Feedback-Arc-Set):
   - Problem Description: https://en.wikipedia.org/wiki/Strongly_connected_component
   - Kosaraju's Algorithm: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
   - Tarjan's Algorithm: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
