@@ -20,8 +20,8 @@ jobs:
         run: |
           cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out Html
       
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v1
+      - name:                    Archive code coverage results
+        uses:                    actions/upload-artifact@v1
         with:
-          name: code-coverage-report
-          path: tarpaulin-report.html
+          name:                  code-coverage-report
+          path:                  tarpaulin-report.html
