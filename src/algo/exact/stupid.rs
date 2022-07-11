@@ -1,10 +1,5 @@
 use itertools::Itertools;
-use petgraph::{
-  algo::is_cyclic_directed,
-  dot::{Config, Dot},
-  prelude::*,
-  visit::IntoEdgeReferences,
-};
+use petgraph::{algo::is_cyclic_directed, prelude::*, visit::IntoEdgeReferences};
 
 pub struct Stupid;
 
@@ -21,13 +16,6 @@ impl Stupid {
         });
 
         if !is_cyclic_directed(&acyclic_graph) {
-          println!(
-            "{:?}",
-            Dot::with_config(
-              &acyclic_graph,
-              &[Config::EdgeNoLabel, Config::NodeIndexLabel],
-            )
-          );
           return permutation;
         }
       }
@@ -44,7 +32,7 @@ mod test {
     stable_graph::StableDiGraph,
   };
 
-  use crate::algo::exact::stupid::Stupid;
+  use crate::{algo::exact::stupid::Stupid, tools::metis::graph_from_file};
 
   #[test]
   fn it_works() {
@@ -82,6 +70,18 @@ mod test {
       (15, 10),
       (15, 13),
     ]);
+
+    println!(
+      "{:?}",
+      Dot::with_config(&graph, &[Config::EdgeNoLabel, Config::NodeIndexLabel])
+    );
+
+    println!("{:?}", Stupid::compute_fas(&graph));
+  }
+
+  #[test]
+  fn works_on_e_001() {
+    let graph = graph_from_file("test/resources/exact/e_001_with_comments");
 
     println!(
       "{:?}",
