@@ -1,2 +1,2 @@
-pub mod divide_and_conquer_exact;
+pub mod divide_and_conquer_heuristic;
 pub mod greedy_heuristic;
