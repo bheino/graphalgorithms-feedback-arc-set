@@ -1,4 +1,6 @@
-use crate::feedback_arc_set::FeedbackArcSet;
+use crate::bisection::graph_bisection::GraphBisection;
+use crate::bisection::stochastic_evolution::StochasticEvolution;
+use crate::fas::feedback_arc_set::FeedbackArcSet;
 use petgraph::algo::tarjan_scc;
 use petgraph::graph::GraphIndex;
 use petgraph::visit::{
@@ -62,46 +64,5 @@ impl FeedbackArcSet for DivideAndConquerExact {
     }
 
     fas
-  }
-}
-
-trait GraphBisection {
-  fn compute_bisect<G>(&self, graph: G) -> (G, G)
-  where
-    G: GraphProp<EdgeType = Directed>
-      + IntoEdgeReferences
-      + IntoNeighbors
-      + IntoNodeIdentifiers
-      + NodeCount
-      + NodeIndexable;
-}
-
-struct StochasticEvolution {}
-impl GraphBisection for StochasticEvolution {
-  fn compute_bisect<G>(&self, graph: G) -> (G, G)
-  where
-    G: GraphProp<EdgeType = Directed>
-      + IntoEdgeReferences
-      + IntoNeighbors
-      + IntoNodeIdentifiers
-      + NodeCount
-      + NodeIndexable,
-  {
-    todo!()
-  }
-}
-
-struct DynamicClustering {}
-impl GraphBisection for DynamicClustering {
-  fn compute_bisect<G>(&self, graph: G) -> (G, G)
-  where
-    G: GraphProp<EdgeType = Directed>
-      + IntoEdgeReferences
-      + IntoNeighbors
-      + IntoNodeIdentifiers
-      + NodeCount
-      + NodeIndexable,
-  {
-    todo!()
   }
 }

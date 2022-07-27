@@ -16,8 +16,8 @@ pub trait FeedbackArcSet {
 
 #[cfg(test)]
 mod tests {
-  use crate::algo::greedy_heuristic::GreedyHeuristic;
-  use crate::feedback_arc_set::FeedbackArcSet;
+  use crate::fas::feedback_arc_set::FeedbackArcSet;
+  use crate::fas::greedy_heuristic::GreedyHeuristic;
   use crate::tools::metis::graph_from_file;
   use petgraph::algo::is_cyclic_directed;
   use petgraph::dot::{Config, Dot};

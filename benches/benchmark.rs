@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use graphalgorithms_feedback_arc_set::algo::greedy_heuristic::GreedyHeuristic;
-use graphalgorithms_feedback_arc_set::feedback_arc_set::FeedbackArcSet;
+use graphalgorithms_feedback_arc_set::fas::feedback_arc_set::FeedbackArcSet;
 use graphalgorithms_feedback_arc_set::tools::metis::graph_from_file;
 
 pub fn criterion_benchmark(c: &mut Criterion) {

@@ -1,4 +1,4 @@
-use crate::feedback_arc_set::FeedbackArcSet;
+use crate::fas::feedback_arc_set::FeedbackArcSet;
 use petgraph::stable_graph::GraphIndex;
 use petgraph::visit::{GraphProp, IntoEdgeReferences, NodeCount};
 use petgraph::Directed;

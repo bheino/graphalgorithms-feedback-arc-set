@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
-pub mod algo;
-pub mod feedback_arc_set;
+pub mod bisection;
+pub mod fas;
+pub mod ordering;
 pub mod tools;
 
 #[cfg(test)]
