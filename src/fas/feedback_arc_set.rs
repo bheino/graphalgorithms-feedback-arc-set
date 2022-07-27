@@ -1,22 +1,15 @@
-use petgraph::stable_graph::GraphIndex;
-use petgraph::visit::{
-  GraphProp, IntoEdgeReferences, IntoNeighbors, IntoNodeIdentifiers, NodeCount, NodeIndexable,
-};
-use petgraph::Directed;
+use petgraph::stable_graph::{EdgeReference, StableDiGraph};
+
+pub type Graph = StableDiGraph<i32, ()>;
 
 pub trait FeedbackArcSet {
   /// Finds a feedback arc set: a set of edges in the given directed graph, which when removed, make the graph acyclic.
-  fn compute_fas<G>(&self, g: G) -> Vec<G::EdgeRef>
-  where
-    G: IntoEdgeReferences + GraphProp<EdgeType = Directed>,
-    G::NodeId: GraphIndex,
-    G: NodeCount,
-    G: IntoNodeIdentifiers + IntoNeighbors + NodeIndexable;
+  fn compute_fas<'a>(&'a self, graph: &'a Graph) -> Vec<EdgeReference<'_, ()>>;
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::fas::feedback_arc_set::FeedbackArcSet;
+  use crate::fas::feedback_arc_set::{FeedbackArcSet, Graph};
   use crate::fas::greedy_heuristic::GreedyHeuristic;
   use crate::tools::metis::graph_from_file;
   use petgraph::algo::is_cyclic_directed;
@@ -89,7 +82,7 @@ mod tests {
 
   fn test_feedback_arc_set<A: FeedbackArcSet>(
     algorithm: A,
-    cyclic_graph: &StableGraph<i32, ()>,
+    cyclic_graph: &Graph,
     expected_set_count: usize,
     should_print_edges: bool,
     should_print_dot: bool,
@@ -124,7 +117,7 @@ mod tests {
   }
 
   fn remove_edges(
-    cyclic_graph: &StableGraph<i32, ()>,
+    cyclic_graph: &Graph,
     removable_edges: &Vec<EdgeReference<()>>,
   ) -> StableGraph<i32, ()> {
     let mut acyclic_graph = cyclic_graph.clone();

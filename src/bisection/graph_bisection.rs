@@ -1,15 +1,8 @@
-use petgraph::visit::{
-  GraphProp, IntoEdgeReferences, IntoNeighbors, IntoNodeIdentifiers, NodeCount, NodeIndexable,
-};
-use petgraph::{Directed, EdgeType};
+use petgraph::stable_graph::StableDiGraph;
 
 pub trait GraphBisection {
-  fn compute_bisect<G>(&self, graph: G) -> (G, G)
-  where
-    G: GraphProp<EdgeType = Directed>
-      + IntoEdgeReferences
-      + IntoNeighbors
-      + IntoNodeIdentifiers
-      + NodeCount
-      + NodeIndexable;
+  fn compute_bisect<'a>(
+    &self,
+    graph: &'a StableDiGraph<i32, ()>,
+  ) -> (&'a StableDiGraph<i32, ()>, &'a StableDiGraph<i32, ()>);
 }
