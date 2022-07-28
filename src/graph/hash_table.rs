@@ -1,7 +1,12 @@
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
 
-type VertexId = u32;
+pub type VertexId = u32;
+pub type Edge = (VertexId, VertexId);
+pub enum Direction {
+  Inbound,
+  Outbound,
+}
 
 pub struct HashTable {
   data: HashMap<VertexId, HashSet<VertexId>>,
@@ -60,6 +65,18 @@ impl HashTable {
     }
   }
 
+  // Returns all edges of a vertex for a specified direction
+  pub fn edges(&self, v: VertexId, d: Direction) -> HashSet<Edge> {
+    let edges = match d {
+      Direction::Inbound => &self.data,
+      Direction::Outbound => &self.data,
+    };
+    match edges.get(&v) {
+      Some(neighbors) => neighbors.iter().map(|v2| (v, *v2)).collect(),
+      None => HashSet::new(),
+    }
+  }
+
   /// Checks if the edge (u, v) exists
   pub fn has_edge(&self, u: VertexId, v: VertexId) -> bool {
     match self.data.get(&u) {
@@ -72,11 +89,20 @@ impl HashTable {
 
   /// Adds the directed edge (u, v)
   pub fn add_edge(&mut self, u: VertexId, v: VertexId) {
-    if !self.data.contains_key(&u) {
-      self.data.insert(u, HashSet::default());
-    }
+    self
+      .data
+      .entry(u)
+      .or_insert_with(HashSet::default)
+      .insert(v);
+  }
 
-    self.data.get_mut(&u).unwrap().insert(v);
+  pub fn remove_vertex(&mut self, v: VertexId) {}
+
+  // ======= Algorithm Methods =======
+
+  pub fn random_vertex(&self) -> VertexId {
+    let idx = rand::thread_rng().gen_range(0..self.data.len());
+    self.data.keys().nth(idx).copied().unwrap()
   }
 }
 
