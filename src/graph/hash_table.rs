@@ -1,4 +1,5 @@
 use rand::Rng;
+use std::borrow::BorrowMut;
 use std::collections::{HashMap, HashSet};
 
 pub type VertexId = u32;
@@ -68,13 +69,19 @@ impl HashTable {
   // Returns all edges of a vertex for a specified direction
   pub fn edges(&self, v: VertexId, d: Direction) -> HashSet<Edge> {
     let edges = match d {
-      Direction::Inbound => &self.data,
-      Direction::Outbound => &self.data,
+      Direction::Outbound => self.data.get(&v).unwrap().clone(),
+      Direction::Inbound => {
+        let x = self
+          .data
+          .iter()
+          .filter(|(_, neighbours)| neighbours.contains(&v))
+          .map(|(vertex, _)| vertex.clone())
+          .collect();
+        x
+      }
     };
-    match edges.get(&v) {
-      Some(neighbors) => neighbors.iter().map(|v2| (v, *v2)).collect(),
-      None => HashSet::new(),
-    }
+
+    edges.iter().map(|v2| (v, *v2)).collect()
   }
 
   /// Checks if the edge (u, v) exists
@@ -96,7 +103,12 @@ impl HashTable {
       .insert(v);
   }
 
-  pub fn remove_vertex(&mut self, v: VertexId) {}
+  pub fn remove_vertex(&mut self, v: VertexId) {
+    for neighbors in self.data.values_mut() {
+      neighbors.remove(&v);
+    }
+    self.data.remove(&v);
+  }
 
   // ======= Algorithm Methods =======
 
