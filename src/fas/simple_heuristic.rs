@@ -49,11 +49,12 @@ impl<'a> SimpleHeuristic<'a> {
 #[cfg(test)]
 mod tests {
   use crate::fas::simple_heuristic::SimpleHeuristic;
-  use crate::graph::hash_table::HashTable;
+  use crate::graph::hash_table::{Edge, HashTable};
+  use crate::tools::dot::Dot;
   use std::collections::HashSet;
 
   #[test]
-  fn deterministic_on_simple_clique() {
+  fn works_on_simple_clique() {
     let edges = [(1, 2), (2, 3), (3, 1)];
     let clique = HashTable::from_edges(&edges);
 
@@ -61,5 +62,95 @@ mod tests {
 
     assert_eq!(fas.len(), 1);
     assert!(fas.is_subset(&HashSet::from(edges)));
+  }
+
+  #[test]
+  fn works_on_multiple_cliques() {
+    let cyclic_graph = HashTable::from_edges(&[
+      (0, 1),
+      (0, 7),
+      (1, 2),
+      (1, 3),
+      (2, 4),
+      (2, 5),
+      (2, 6),
+      (3, 7),
+      (6, 8),
+      (6, 9),
+      (7, 9),
+      (5, 10),
+      (8, 10),
+      (9, 10),
+      (4, 11),
+      (4, 12),
+      (12, 11),
+      (10, 13),
+      (11, 13),
+      (10, 14),
+      (14, 15),
+      (14, 16),
+      (16, 15),
+      (16, 17),
+      (17, 18),
+      (12, 18),
+      // Ab hier kommen Zyklen rein
+      (13, 2),
+      (7, 1),
+      (6, 7),
+      (15, 10),
+      (15, 13),
+    ]);
+
+    test_feedback_arc_set(&cyclic_graph, 4, true, true);
+  }
+
+  fn test_feedback_arc_set(
+    cyclic_graph: &HashTable,
+    expected_set_count: usize,
+    should_print_edges: bool,
+    should_print_dot: bool,
+  ) {
+    assert!(is_cyclic_directed(cyclic_graph));
+    let algorithm = SimpleHeuristic {
+      graph: cyclic_graph,
+    };
+
+    if should_print_dot {
+      print_dot("Cyclic Graph:", cyclic_graph)
+    };
+
+    let removable_edges = algorithm.feedback_arc_set();
+    if should_print_edges {
+      print_edges(&removable_edges);
+    }
+
+    let acyclic_graph = remove_edges(cyclic_graph, &removable_edges);
+    if should_print_dot {
+      print_dot("Acyclic Graph:", &acyclic_graph);
+    }
+
+    assert_eq!(removable_edges.len(), expected_set_count);
+    assert!(!is_cyclic_directed(&acyclic_graph));
+  }
+
+  fn remove_edges(cyclic_graph: &HashTable, edges: &HashSet<Edge>) -> HashTable {
+    let mut acyclic_graph = cyclic_graph.clone();
+    for edge in edges {
+      acyclic_graph.remove_edge(*edge);
+    }
+    acyclic_graph
+  }
+
+  fn print_edges(edges: &HashSet<Edge>) {
+    println!("Edges to be removed:");
+    edges
+      .iter()
+      .for_each(|(source, target)| println!("\t{:?} -> {:?}", source, target));
+    println!();
+  }
+
+  fn print_dot(prefix: &str, graph: &HashTable) {
+    println!("{}", prefix);
+    println!("{}", Dot::new(graph));
   }
 }

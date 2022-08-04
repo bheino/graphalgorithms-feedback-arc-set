@@ -76,6 +76,11 @@ impl HashTable {
     }
   }
 
+  // Returns all vertices
+  pub fn vertices(&self) -> HashSet<VertexId> {
+    HashSet::from_iter(self.data.keys().cloned())
+  }
+
   // Returns all edges of a vertex for a specified direction
   pub fn edges(&self, v: VertexId, d: Direction) -> HashSet<Edge> {
     let edges = match d {
@@ -118,6 +123,13 @@ impl HashTable {
       neighbors.remove(&v);
     }
     self.data.remove(&v);
+  }
+
+  pub fn remove_edge(&mut self, e: Edge) {
+    match self.data.get_mut(&e.0) {
+      Some(edges) => edges.remove(&e.1),
+      None => false,
+    };
   }
 
   // ======= Algorithm Methods =======
