@@ -9,6 +9,7 @@ pub enum Direction {
   Outbound,
 }
 
+#[derive(Clone, Debug)]
 pub struct HashTable {
   data: HashMap<VertexId, HashSet<VertexId>>,
 }

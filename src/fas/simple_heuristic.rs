@@ -25,12 +25,13 @@ impl<'a> SimpleHeuristic<'a> {
   }
 
   pub fn feedback_arc_set(&self) -> HashSet<Edge> {
+    let mut graph = self.graph.clone();
     let mut fas = HashSet::new();
 
-    while self.graph.order() > 0 {
-      let v = self.graph.random_vertex();
-      let edges_in = self.graph.edges(v, Direction::Inbound);
-      let edges_out = self.graph.edges(v, Direction::Outbound);
+    while graph.order() > 0 {
+      let v = graph.random_vertex();
+      let edges_in = graph.edges(v, Direction::Inbound);
+      let edges_out = graph.edges(v, Direction::Outbound);
 
       if edges_in.len() < edges_out.len() {
         fas.extend(edges_in);
@@ -38,7 +39,7 @@ impl<'a> SimpleHeuristic<'a> {
         fas.extend(edges_out)
       }
 
-      self.graph.remove_vertex(v);
+      graph.remove_vertex(v);
     }
 
     fas
