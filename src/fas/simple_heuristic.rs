@@ -45,3 +45,21 @@ impl<'a> SimpleHeuristic<'a> {
     fas
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::fas::simple_heuristic::SimpleHeuristic;
+  use crate::graph::hash_table::HashTable;
+  use std::collections::HashSet;
+
+  #[test]
+  fn deterministic_on_simple_clique() {
+    let edges = [(1, 2), (2, 3), (3, 1)];
+    let clique = HashTable::from_edges(&edges);
+
+    let fas = SimpleHeuristic { graph: &clique }.feedback_arc_set();
+
+    assert_eq!(fas.len(), 1);
+    assert!(fas.is_subset(&HashSet::from(edges)));
+  }
+}

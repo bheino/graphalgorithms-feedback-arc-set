@@ -17,12 +17,19 @@ pub struct HashTable {
 impl HashTable {
   // ======= Creational Methods =======
 
-  pub fn new(n: usize) -> HashTable {
-    HashTable {
+  pub fn new(n: usize) -> Self {
+    Self {
       data: (0..n)
         .map(|v| (v as VertexId, HashSet::default()))
         .collect::<HashMap<_, _>>(),
     }
+  }
+
+  pub fn from_edges(edges: &[Edge]) -> Self {
+    let mut d = HashTable::new(0);
+    edges.iter().for_each(|e| d.add_edge(*e));
+
+    d
   }
 
   pub fn random<R: Rng>(n: usize, p: f64, rng: &mut R) -> HashTable {
@@ -36,7 +43,7 @@ impl HashTable {
         }
         let random_value: f64 = rng.gen();
         if p > random_value {
-          graph.add_edge(u, v);
+          graph.add_edge((u, v));
         }
       }
     }
@@ -48,7 +55,7 @@ impl HashTable {
     let mut graph = HashTable::new(n);
     for u in 0..n as VertexId {
       for v in (u + 1)..n as VertexId {
-        graph.add_edge(u, v);
+        graph.add_edge((u, v));
       }
     }
     graph
@@ -98,12 +105,12 @@ impl HashTable {
   // ======= Mutating Methods =======
 
   /// Adds the directed edge (u, v)
-  pub fn add_edge(&mut self, u: VertexId, v: VertexId) {
+  pub fn add_edge(&mut self, e: Edge) {
     self
       .data
-      .entry(u)
+      .entry(e.0)
       .or_insert_with(HashSet::default)
-      .insert(v);
+      .insert(e.1);
   }
 
   pub fn remove_vertex(&mut self, v: VertexId) {
@@ -145,8 +152,8 @@ pub mod tests {
     let mut graph = HashTable::new(5);
     for u in 0..5 {
       for v in (u + 1)..5 {
-        graph.add_edge(u, v);
-        graph.add_edge(v, u);
+        graph.add_edge((u, v));
+        graph.add_edge((v, u));
       }
     }
 
