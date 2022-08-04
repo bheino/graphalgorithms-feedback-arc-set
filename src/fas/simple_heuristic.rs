@@ -1,7 +1,5 @@
-use crate::fas::feedback_arc_set::{FeedbackArcSet, Graph};
-use petgraph::stable_graph::{EdgeReference, StableDiGraph};
-use petgraph::visit::{IntoNodeReferences, NodeRef};
-use petgraph::Direction;
+use crate::graph::hash_table::{Direction, Edge, HashTable};
+use std::collections::HashSet;
 
 /*
 A feedback arc set of size no more than 1/2 |E| can be
@@ -17,28 +15,33 @@ while G != empty do
     remove v and all arcs incident to it from G
 return F.
  */
-pub struct SimpleHeuristic {}
+pub struct SimpleHeuristic<'a> {
+  graph: &'a HashTable,
+}
 
-impl FeedbackArcSet for SimpleHeuristic {
-  fn compute_fas<'a>(&'a self, g: &'a Graph) -> Vec<EdgeReference<'_, ()>> {
-    /*let mut graph = g.clone();
-    let mut fas = vec![];
+impl<'a> SimpleHeuristic<'a> {
+  pub fn new(graph: &'a HashTable) -> Self {
+    Self { graph }
+  }
 
-    while graph.edge_count() > 0 {
-      let (nodeId, _) = graph.node_references().into_iter().next().unwrap();
-      let edgesIn = graph.edges_directed(nodeId, Direction::Incoming);
-      let edgesOut = graph.edges_directed(nodeId, Direction::Outgoing);
+  pub fn feedback_arc_set(&self) -> HashSet<Edge> {
+    let mut graph = self.graph.clone();
+    let mut fas = HashSet::new();
 
-      if edgesIn.count() < edgesOut.count() {
-        edgesIn.for_each(|e| fas.push(e));
+    while graph.order() > 0 {
+      let v = graph.random_vertex();
+      let edges_in = graph.edges(v, Direction::Inbound);
+      let edges_out = graph.edges(v, Direction::Outbound);
+
+      if edges_in.len() < edges_out.len() {
+        fas.extend(edges_in);
       } else {
-        edgesOut.for_each(|e| fas.push(e));
+        fas.extend(edges_out)
       }
 
-      graph.remove_node(nodeId);
+      graph.remove_vertex(v);
     }
 
-    fas*/
-    todo!()
+    fas
   }
 }
