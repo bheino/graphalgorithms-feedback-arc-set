@@ -51,6 +51,7 @@ mod tests {
   use crate::fas::simple_heuristic::SimpleHeuristic;
   use crate::graph::hash_table::{Edge, HashTable};
   use crate::tools::dot::Dot;
+  use crate::tools::metis::graph_from_file;
   use std::collections::HashSet;
   use std::ops::Range;
 
@@ -102,7 +103,19 @@ mod tests {
       (15, 13),
     ]);
 
-    test_feedback_arc_set(&cyclic_graph, 4..12, true, true);
+    test_feedback_arc_set(&cyclic_graph, 4..(5 * 4), false, false);
+  }
+
+  #[test]
+  fn works_on_h_001() {
+    let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
+    test_feedback_arc_set(&cyclic_graph, 143..(5 * 143), false, false);
+  }
+
+  #[test]
+  fn works_on_h_025() {
+    let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
+    test_feedback_arc_set(&cyclic_graph, 1574..(5 * 1574), false, false);
   }
 
   fn test_feedback_arc_set(
@@ -125,6 +138,7 @@ mod tests {
     };
 
     let removable_edges = algorithm.feedback_arc_set();
+    println!("{:?}", removable_edges.len());
     if should_print_edges {
       let print_edges = |edges: &HashSet<Edge>| {
         println!("Edges to be removed:");
