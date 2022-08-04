@@ -1,7 +1,10 @@
 #![allow(dead_code)]
 
+extern crate core;
+
 pub mod bisection;
 pub mod fas;
+pub mod graph;
 pub mod ordering;
 pub mod tools;
 
