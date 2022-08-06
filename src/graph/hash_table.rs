@@ -99,6 +99,14 @@ impl HashTable {
     edges.iter().map(|v2| (v, *v2)).collect()
   }
 
+  pub fn neighborhood(&self, v: VertexId) -> &[VertexId] {
+    self
+      .data
+      .get(&v)
+      .map(|neighbors| neighbors.as_slice())
+      .unwrap_or_default()
+  }
+
   /// Checks if the edge (u, v) exists
   pub fn has_edge(&self, u: VertexId, v: VertexId) -> bool {
     match self.data.get(&u) {
@@ -190,5 +198,21 @@ pub mod tests {
     for u in 0..5 {
       assert!(!graph.has_edge(u, u));
     }
+  }
+
+  #[test]
+  fn neighborhood() {
+    let mut graph = HashTable::new(5);
+
+    let to_add = vec![3, 4, 1, 1, 4];
+    let u = 2;
+    for v in &to_add {
+      graph.add_edge((u, *v));
+    }
+
+    let mut added: Vec<_> = graph.neighborhood(u).to_vec();
+    added.sort_unstable();
+
+    assert_eq!(added, vec![1, 3, 4]);
   }
 }
