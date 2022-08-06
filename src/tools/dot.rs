@@ -27,7 +27,7 @@ impl<'a> Display for Dot<'a> {
       writeln!(f, "\t {} [color={}];", u, self.vertex_colors[u as usize])?;
     }
     for v in self.graph.vertices() {
-      for e in self.graph.edges(v, Direction::Outbound) {
+      for e in self.graph.edges(*v, Direction::Outbound) {
         writeln!(f, "\t {} -> {};", e.0, e.1)?;
       }
     }

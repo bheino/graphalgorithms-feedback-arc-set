@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub type VertexId = u32;
 pub type Edge = (VertexId, VertexId);
@@ -11,7 +11,7 @@ pub enum Direction {
 
 #[derive(Clone, Debug)]
 pub struct HashTable {
-  data: HashMap<VertexId, HashSet<VertexId>>,
+  data: HashMap<VertexId, Vec<VertexId>>,
 }
 
 impl HashTable {
@@ -20,7 +20,7 @@ impl HashTable {
   pub fn new(n: usize) -> Self {
     Self {
       data: (0..n)
-        .map(|v| (v as VertexId, HashSet::default()))
+        .map(|v| (v as VertexId, Vec::default()))
         .collect::<HashMap<_, _>>(),
     }
   }
@@ -77,12 +77,12 @@ impl HashTable {
   }
 
   // Returns all vertices
-  pub fn vertices(&self) -> HashSet<VertexId> {
-    HashSet::from_iter(self.data.keys().cloned())
+  pub fn vertices(&self) -> Vec<&VertexId> {
+    Vec::from_iter(self.data.keys())
   }
 
   // Returns all edges of a vertex for a specified direction
-  pub fn edges(&self, v: VertexId, d: Direction) -> HashSet<Edge> {
+  pub fn edges(&self, v: VertexId, d: Direction) -> Vec<Edge> {
     let edges = match d {
       Direction::Outbound => self.data.get(&v).unwrap().clone(),
       Direction::Inbound => {
@@ -90,7 +90,7 @@ impl HashTable {
           .data
           .iter()
           .filter(|(_, neighbours)| neighbours.contains(&v))
-          .map(|(vertex, _)| vertex.clone())
+          .map(|(vertex, _)| *vertex)
           .collect();
         x
       }
@@ -111,24 +111,32 @@ impl HashTable {
 
   /// Adds the directed edge (u, v)
   pub fn add_edge(&mut self, e: Edge) {
-    self
-      .data
-      .entry(e.0)
-      .or_insert_with(HashSet::default)
-      .insert(e.1);
+    let edges = self.data.entry(e.0).or_insert_with(Vec::default);
+
+    if !edges.contains(&e.1) {
+      edges.push(e.1);
+    }
   }
 
   pub fn remove_vertex(&mut self, v: VertexId) {
     for neighbors in self.data.values_mut() {
-      neighbors.remove(&v);
+      neighbors
+        .iter()
+        .position(|&neighbor| neighbor == v)
+        .map(|index| neighbors.remove(index));
     }
     self.data.remove(&v);
   }
 
   pub fn remove_edge(&mut self, e: Edge) {
     match self.data.get_mut(&e.0) {
-      Some(edges) => edges.remove(&e.1),
-      None => false,
+      Some(edges) => {
+        edges
+          .iter()
+          .position(|&neighbor| neighbor == e.1)
+          .map(|index| edges.remove(index));
+      }
+      None => (),
     };
   }
 
