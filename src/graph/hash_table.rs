@@ -25,8 +25,8 @@ impl HashTable {
     }
   }
 
-  pub fn from_edges(edges: &[Edge]) -> Self {
-    let mut d = HashTable::new(0);
+  pub fn from_edges(n: usize, edges: &[Edge]) -> Self {
+    let mut d = HashTable::new(n);
     edges.iter().for_each(|e| d.add_edge(*e));
 
     d

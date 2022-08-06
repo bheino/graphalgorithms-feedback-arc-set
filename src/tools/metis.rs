@@ -8,6 +8,7 @@ pub struct Metis {
   filename: String,
   edges: Vec<(u32, u32)>,
   edge_count: usize,
+  vertex_count: usize,
 }
 
 impl Metis {
@@ -16,6 +17,7 @@ impl Metis {
       filename: file.to_string(),
       edges: vec![],
       edge_count: 0,
+      vertex_count: 0,
     }
   }
 
@@ -56,6 +58,7 @@ impl Metis {
   fn parse_header_line(&mut self, header: String) {
     let parts: Vec<&str> = header.split_whitespace().collect();
     if parts.len() >= 2 {
+      self.vertex_count = parts[0].parse::<usize>().unwrap();
       self.edge_count = parts[1].parse::<usize>().unwrap();
     }
   }
@@ -63,12 +66,16 @@ impl Metis {
   pub fn edges(&self) -> &[(u32, u32)] {
     self.edges.as_slice()
   }
+
+  pub fn vertices(&self) -> usize {
+    self.vertex_count
+  }
 }
 
 pub fn graph_from_file(filename: &str) -> HashTable {
   let mut parser = Metis::new(filename);
   parser.parse();
-  HashTable::from_edges(parser.edges())
+  HashTable::from_edges(parser.vertices(), parser.edges())
 }
 
 #[cfg(test)]
@@ -77,18 +84,19 @@ mod tests {
 
   #[test]
   fn can_parse_e_001() {
-    can_parse_metis_file("test/resources/exact/e_001", 651);
+    can_parse_metis_file("test/resources/exact/e_001", 512, 651);
   }
 
   #[test]
   fn can_parse_e_001_with_comments() {
-    can_parse_metis_file("test/resources/exact/e_001_with_comments", 651);
+    can_parse_metis_file("test/resources/exact/e_001_with_comments", 512, 651);
   }
 
-  fn can_parse_metis_file(path: &str, expected_edge_count: usize) {
+  fn can_parse_metis_file(path: &str, expected_vertex_count: usize, expected_edge_count: usize) {
     let mut e_001 = Metis::new(path);
     e_001.parse();
 
+    assert_eq!(e_001.vertex_count, expected_vertex_count);
     assert_eq!(e_001.edge_count, expected_edge_count);
     assert_eq!(e_001.edges.len(), e_001.edge_count);
 

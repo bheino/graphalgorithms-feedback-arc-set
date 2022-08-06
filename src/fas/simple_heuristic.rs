@@ -50,6 +50,7 @@ impl<'a> SimpleHeuristic<'a> {
 mod tests {
   use crate::fas::simple_heuristic::SimpleHeuristic;
   use crate::graph::hash_table::{Edge, HashTable};
+  use crate::tools::cycle::DepthFirstSearch;
   use crate::tools::dot::Dot;
   use crate::tools::metis::graph_from_file;
   use std::collections::HashSet;
@@ -58,7 +59,7 @@ mod tests {
   #[test]
   fn works_on_simple_clique() {
     let edges = [(1, 2), (2, 3), (3, 1)];
-    let clique = HashTable::from_edges(&edges);
+    let clique = HashTable::from_edges(edges.len(), &edges);
 
     let fas = SimpleHeuristic { graph: &clique }.feedback_arc_set();
 
@@ -68,7 +69,7 @@ mod tests {
 
   #[test]
   fn works_on_multiple_cliques() {
-    let cyclic_graph = HashTable::from_edges(&[
+    let edges = [
       (0, 1),
       (0, 7),
       (1, 2),
@@ -101,7 +102,8 @@ mod tests {
       (6, 7),
       (15, 10),
       (15, 13),
-    ]);
+    ];
+    let cyclic_graph = HashTable::from_edges(edges.len(), &edges);
 
     test_feedback_arc_set(&cyclic_graph, 4..(5 * 4), false, false);
   }
@@ -124,7 +126,10 @@ mod tests {
     should_print_edges: bool,
     should_print_dot: bool,
   ) {
-    // todo(assert!(is_cyclic_directed(cyclic_graph));)
+    let is_cyclic_directed = |graph: &HashTable| -> bool {
+      DepthFirstSearch::new(graph, graph.random_vertex()).is_acyclic()
+    };
+    assert!(is_cyclic_directed(cyclic_graph));
     let algorithm = SimpleHeuristic {
       graph: cyclic_graph,
     };
@@ -168,6 +173,6 @@ mod tests {
     }
 
     assert!(expected_set_range.contains(&removable_edges.len()));
-    // todo(assert!(!is_cyclic_directed(&acyclic_graph));)
+    assert!(!is_cyclic_directed(&acyclic_graph));
   }
 }
