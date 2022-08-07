@@ -1,14 +1,14 @@
 use crate::graph::hash_table::{HashTable, VertexId};
 
-pub struct DepthFirstSearch<'a> {
+pub struct CycleDetection<'a> {
   graph: &'a HashTable,
-  stack: Vec<VertexId>,
+  stack: Vec<bool>,
   visited: Vec<bool>,
 }
 
-impl<'a> DepthFirstSearch<'a> {
-  pub fn new(graph: &'a HashTable, start: VertexId) -> Self {
-    let stack = vec![start];
+impl<'a> CycleDetection<'a> {
+  pub fn new(graph: &'a HashTable) -> Self {
+    let stack = vec![false; graph.order() as usize];
     let visited = vec![false; graph.order() as usize];
     Self {
       graph,
@@ -17,55 +17,54 @@ impl<'a> DepthFirstSearch<'a> {
     }
   }
 
-  pub fn is_acyclic(&self) -> bool {
-    todo!("Auf Basis von DFS zu implementieren")
-  }
-}
-
-impl<'a> Iterator for DepthFirstSearch<'a> {
-  type Item = VertexId;
-
-  fn next(&mut self) -> Option<Self::Item> {
-    while let Some(u) = self.stack.pop() {
-      if !self.visited[u as usize] {
-        self.visited[u as usize] = true;
-        self.stack.extend_from_slice(self.graph.neighborhood(u));
-        return Some(u);
+  // Quelle: https://www.geeksforgeeks.org/detect-cycle-in-a-graph/
+  pub fn is_cyclic(&mut self) -> bool {
+    for v in 0..self.graph.order() as VertexId {
+      if self.is_cyclic_util(v) {
+        return true;
       }
     }
-    None
+
+    false
+  }
+
+  pub fn is_cyclic_util(&mut self, v: VertexId) -> bool {
+    if self.stack[v as usize] {
+      return true;
+    }
+
+    if self.visited[v as usize] {
+      return false;
+    }
+
+    self.visited[v as usize] = true;
+    self.stack[v as usize] = true;
+
+    for neighbor in self.graph.neighborhood(v) {
+      if self.is_cyclic_util(*neighbor) {
+        return true;
+      }
+    }
+
+    self.stack[v as usize] = false;
+    false
   }
 }
 
 #[cfg(test)]
 pub mod tests {
   use crate::graph::hash_table::HashTable;
-  use crate::tools::cycle::DepthFirstSearch;
+  use crate::tools::cycle::CycleDetection;
 
   #[test]
-  fn dfs() {
-    let mut graph = HashTable::new(5);
-    graph.add_edge((0, 1));
-    graph.add_edge((0, 2));
-    graph.add_edge((0, 3));
-    graph.add_edge((2, 3));
-    graph.add_edge((3, 2));
-    graph.add_edge((3, 0));
-
-    let dfs_order: Vec<_> = DepthFirstSearch::new(&graph, 0).collect();
-    let expected_order: Vec<_> = vec![0, 3, 2, 1];
-    assert_eq!(dfs_order, expected_order);
-  }
-
-  #[test]
-  fn is_not_acyclic() {
+  fn is_cyclic() {
     let mut graph = HashTable::new(3);
     graph.add_edge((0, 1));
     graph.add_edge((1, 2));
     graph.add_edge((2, 0));
-    let dfs = DepthFirstSearch::new(&graph, 0);
+    let mut dfs = CycleDetection::new(&graph);
 
-    todo!("assert!(!dfs.is_acyclic());")
+    assert!(dfs.is_cyclic());
   }
 
   #[test]
@@ -73,8 +72,8 @@ pub mod tests {
     let mut graph = HashTable::new(3);
     graph.add_edge((0, 1));
     graph.add_edge((1, 2));
-    let dfs = DepthFirstSearch::new(&graph, 0);
+    let mut dfs = CycleDetection::new(&graph);
 
-    todo!("assert!(dfs.is_acyclic());")
+    assert!(!dfs.is_cyclic());
   }
 }

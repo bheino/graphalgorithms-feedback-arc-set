@@ -43,7 +43,7 @@ impl<'a> SimpleHeuristic<'a> {
     }
 
     // Nachbedingung: A feedback arc set of size no more than 1/2 |E|
-    assert!(
+    debug_assert!(
       fas.len() <= self.graph.edge_count() / 2,
       "fas = {}, max = {}",
       fas.len(),
@@ -57,7 +57,7 @@ impl<'a> SimpleHeuristic<'a> {
 mod tests {
   use crate::fas::simple_heuristic::SimpleHeuristic;
   use crate::graph::hash_table::{Edge, HashTable};
-  use crate::tools::cycle::DepthFirstSearch;
+  use crate::tools::cycle::CycleDetection;
   use crate::tools::dot::Dot;
   use crate::tools::metis::graph_from_file;
   use std::collections::HashSet;
@@ -133,10 +133,8 @@ mod tests {
     should_print_edges: bool,
     should_print_dot: bool,
   ) {
-    let is_cyclic = |graph: &HashTable| -> bool {
-      !DepthFirstSearch::new(graph, graph.random_vertex()).is_acyclic()
-    };
-    //assert!(is_cyclic(cyclic_graph));
+    let is_cyclic = |graph: &HashTable| -> bool { CycleDetection::new(graph).is_cyclic() };
+    assert!(is_cyclic(cyclic_graph));
     let algorithm = SimpleHeuristic {
       graph: cyclic_graph,
     };
@@ -179,6 +177,6 @@ mod tests {
     }
 
     assert!(expected_set_range.contains(&removable_edges.len()));
-    //assert!(!is_cyclic(&acyclic_graph));
+    // TODO assert!(!is_cyclic(&acyclic_graph));
   }
 }
