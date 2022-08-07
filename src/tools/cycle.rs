@@ -3,13 +3,13 @@ use crate::graph::hash_table::{HashTable, VertexId};
 pub struct DepthFirstSearch<'a> {
   graph: &'a HashTable,
   stack: Vec<VertexId>,
-  visited: Vec<usize>,
+  visited: Vec<bool>,
 }
 
 impl<'a> DepthFirstSearch<'a> {
   pub fn new(graph: &'a HashTable, start: VertexId) -> Self {
     let stack = vec![start];
-    let visited = vec![0; graph.order() as usize];
+    let visited = vec![false; graph.order() as usize];
     Self {
       graph,
       stack,
@@ -17,13 +17,8 @@ impl<'a> DepthFirstSearch<'a> {
     }
   }
 
-  pub fn is_acyclic(&mut self) -> bool {
-    while let Some(u) = self.next() {
-      if self.visited[u as usize] > 1 {
-        return false;
-      }
-    }
-    self.visited.iter().all(|&v| v < 2)
+  pub fn is_acyclic(&self) -> bool {
+    todo!("Auf Basis von DFS zu implementieren")
   }
 }
 
@@ -32,12 +27,10 @@ impl<'a> Iterator for DepthFirstSearch<'a> {
 
   fn next(&mut self) -> Option<Self::Item> {
     while let Some(u) = self.stack.pop() {
-      if self.visited[u as usize] == 0 {
-        self.visited[u as usize] += 1;
+      if !self.visited[u as usize] {
+        self.visited[u as usize] = true;
         self.stack.extend_from_slice(self.graph.neighborhood(u));
         return Some(u);
-      } else {
-        self.visited[u as usize] += 1;
       }
     }
     None
@@ -70,9 +63,9 @@ pub mod tests {
     graph.add_edge((0, 1));
     graph.add_edge((1, 2));
     graph.add_edge((2, 0));
-    let mut dfs = DepthFirstSearch::new(&graph, 0);
+    let dfs = DepthFirstSearch::new(&graph, 0);
 
-    assert!(!dfs.is_acyclic());
+    todo!("assert!(!dfs.is_acyclic());")
   }
 
   #[test]
@@ -80,8 +73,8 @@ pub mod tests {
     let mut graph = HashTable::new(3);
     graph.add_edge((0, 1));
     graph.add_edge((1, 2));
-    let mut dfs = DepthFirstSearch::new(&graph, 0);
+    let dfs = DepthFirstSearch::new(&graph, 0);
 
-    assert!(dfs.is_acyclic());
+    todo!("assert!(dfs.is_acyclic());")
   }
 }

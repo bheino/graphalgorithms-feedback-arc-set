@@ -76,6 +76,10 @@ impl HashTable {
     }
   }
 
+  pub fn edge_count(&self) -> usize {
+    self.data.iter().map(|edges| edges.1.len()).sum()
+  }
+
   // Returns all vertices
   pub fn vertices(&self) -> Vec<&VertexId> {
     Vec::from_iter(self.data.keys())

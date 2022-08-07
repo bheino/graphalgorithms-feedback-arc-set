@@ -1,31 +1,20 @@
-use crate::graph::hash_table::{Direction, HashTable, VertexId};
+use crate::graph::hash_table::{Direction, HashTable};
 use std::fmt::{Display, Formatter, Result};
 
 // Quelle: Beispiel-Lösungen zu Übungsaufgaben
 pub struct Dot<'a> {
-  vertex_colors: Vec<String>,
   graph: &'a HashTable,
 }
 
 impl<'a> Dot<'a> {
   pub fn new(graph: &'a HashTable) -> Self {
-    Self {
-      vertex_colors: vec!["black".to_string(); graph.order() as usize],
-      graph,
-    }
-  }
-
-  pub fn set_color(&mut self, u: VertexId, color: String) {
-    self.vertex_colors[u as usize] = color;
+    Self { graph }
   }
 }
 
 impl<'a> Display for Dot<'a> {
   fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-    writeln!(f, "Digraph {{")?;
-    for u in 0..self.graph.order() {
-      writeln!(f, "\t {} [color={}];", u, self.vertex_colors[u as usize])?;
-    }
+    writeln!(f, "digraph {{")?;
     for v in self.graph.vertices() {
       for e in self.graph.edges(*v, Direction::Outbound) {
         writeln!(f, "\t {} -> {};", e.0, e.1)?;
