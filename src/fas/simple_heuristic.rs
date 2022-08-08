@@ -61,7 +61,6 @@ mod tests {
   use crate::tools::dot::Dot;
   use crate::tools::metis::graph_from_file;
   use std::collections::HashSet;
-  use std::ops::Range;
 
   #[test]
   fn works_on_simple_clique() {
@@ -112,53 +111,29 @@ mod tests {
     ];
     let cyclic_graph = HashTable::from_edges(&edges);
 
-    test_feedback_arc_set(&cyclic_graph, 4..(5 * 4), false, true);
+    test_feedback_arc_set(&cyclic_graph);
   }
 
   #[test]
   fn works_on_h_001() {
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
-    test_feedback_arc_set(&cyclic_graph, 143..(5 * 143), false, false);
+    test_feedback_arc_set(&cyclic_graph);
   }
 
   #[test]
   fn works_on_h_025() {
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
-    test_feedback_arc_set(&cyclic_graph, 1574..(5 * 1574), false, false);
+    test_feedback_arc_set(&cyclic_graph);
   }
 
-  fn test_feedback_arc_set(
-    cyclic_graph: &HashTable,
-    expected_set_range: Range<usize>,
-    should_print_edges: bool,
-    should_print_dot: bool,
-  ) {
+  fn test_feedback_arc_set(cyclic_graph: &HashTable) {
     let is_cyclic = |graph: &HashTable| -> bool { CycleDetection::new(graph).is_cyclic() };
-    assert!(is_cyclic(cyclic_graph));
+    assert!(is_cyclic(cyclic_graph), "No cycles found in graph!?");
     let algorithm = SimpleHeuristic {
       graph: cyclic_graph,
     };
 
-    if should_print_dot {
-      let print_dot = |prefix, graph| {
-        println!("{}", prefix);
-        println!("{}", Dot::new(graph));
-      };
-      print_dot("Cyclic Graph:", cyclic_graph)
-    };
-
     let removable_edges = algorithm.feedback_arc_set();
-    if should_print_edges {
-      let print_edges = |edges: &HashSet<Edge>| {
-        println!("Edges to be removed:");
-        edges
-          .iter()
-          .for_each(|(source, target)| println!("\t{:?} -> {:?}", source, target));
-        println!();
-      };
-      print_edges(&removable_edges);
-    }
-
     let remove_edges = |cyclic_graph: &HashTable, edges: &HashSet<Edge>| {
       let mut acyclic_graph = cyclic_graph.clone();
       for edge in edges {
@@ -168,15 +143,17 @@ mod tests {
     };
 
     let acyclic_graph = remove_edges(cyclic_graph, &removable_edges);
-    if should_print_dot {
+
+    if is_cyclic(&acyclic_graph) {
       let print_dot = |prefix, graph| {
         println!("{}", prefix);
         println!("{}", Dot::new(graph));
       };
-      print_dot("Acyclic Graph:", &acyclic_graph);
-    }
 
-    assert!(expected_set_range.contains(&removable_edges.len()));
-    // TODO assert!(!is_cyclic(&acyclic_graph));
+      print_dot("Cyclic Graph:", cyclic_graph);
+      print_dot("Acyclic Graph:", &acyclic_graph);
+
+      panic!("Graph still has cycles!");
+    }
   }
 }

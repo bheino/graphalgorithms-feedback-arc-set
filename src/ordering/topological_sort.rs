@@ -24,7 +24,7 @@ impl<'a> TopologicalSort<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
+  use crate::graph::hash_table::{Direction, HashTable, VertexId};
   use crate::ordering::topological_sort::TopologicalSort;
 
   #[test]

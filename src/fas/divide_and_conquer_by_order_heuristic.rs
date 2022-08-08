@@ -100,3 +100,108 @@ fn vertex_with_min_indegree(graph: &HashTable) -> VertexId {
     .unwrap()
     .0
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::fas::divide_and_conquer_by_order_heuristic::DivideAndConquerByOrderHeuristic;
+  use crate::graph::hash_table::{Edge, HashTable};
+  use crate::tools::cycle::CycleDetection;
+  use crate::tools::dot::Dot;
+  use crate::tools::metis::graph_from_file;
+  use std::collections::HashSet;
+
+  #[test]
+  fn works_on_simple_clique() {
+    let edges = [(0, 1), (1, 2), (2, 0)];
+    let clique = HashTable::from_edges(&edges);
+
+    let fas = DivideAndConquerByOrderHeuristic { graph: &clique }.feedback_arc_set();
+
+    assert_eq!(fas.len(), 1);
+    assert!(fas.is_subset(&HashSet::from(edges)));
+  }
+
+  #[test]
+  fn works_on_multiple_cliques() {
+    let edges = [
+      (0, 1),
+      (0, 7),
+      (1, 2),
+      (1, 3),
+      (2, 4),
+      (2, 5),
+      (2, 6),
+      (3, 7),
+      (6, 8),
+      (6, 9),
+      (7, 9),
+      (5, 10),
+      (8, 10),
+      (9, 10),
+      (4, 11),
+      (4, 12),
+      (12, 11),
+      (10, 13),
+      (11, 13),
+      (10, 14),
+      (14, 15),
+      (14, 16),
+      (16, 15),
+      (16, 17),
+      (17, 18),
+      (12, 18),
+      // Ab hier kommen Zyklen rein
+      (13, 2),
+      (7, 1),
+      (6, 7),
+      (15, 10),
+      (15, 13),
+    ];
+    let cyclic_graph = HashTable::from_edges(&edges);
+
+    test_feedback_arc_set(&cyclic_graph);
+  }
+
+  #[test]
+  fn works_on_h_001() {
+    let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
+    test_feedback_arc_set(&cyclic_graph);
+  }
+
+  #[test]
+  fn works_on_h_025() {
+    let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
+    test_feedback_arc_set(&cyclic_graph);
+  }
+
+  fn test_feedback_arc_set(cyclic_graph: &HashTable) {
+    let is_cyclic = |graph: &HashTable| -> bool { CycleDetection::new(graph).is_cyclic() };
+    assert!(is_cyclic(cyclic_graph));
+    let algorithm = DivideAndConquerByOrderHeuristic {
+      graph: cyclic_graph,
+    };
+
+    let removable_edges = algorithm.feedback_arc_set();
+    let remove_edges = |cyclic_graph: &HashTable, edges: &HashSet<Edge>| {
+      let mut acyclic_graph = cyclic_graph.clone();
+      for edge in edges {
+        acyclic_graph.remove_edge(*edge);
+      }
+      acyclic_graph
+    };
+
+    let acyclic_graph = remove_edges(cyclic_graph, &removable_edges);
+
+    if is_cyclic(&acyclic_graph) {
+      let print_dot = |prefix, graph| {
+        println!("{}", prefix);
+        println!("{}", Dot::new(graph));
+      };
+
+      print_dot("Cyclic Graph:", cyclic_graph);
+      print_dot("Acyclic Graph:", &acyclic_graph);
+
+      panic!("Graph still has cycles!");
+    }
+  }
+}
