@@ -1,3 +1,4 @@
+use crate::fas::feedback_arc_set::FeedbackArcSet;
 use crate::graph::hash_table::{Direction, Edge, HashTable};
 use std::collections::HashSet;
 
@@ -23,8 +24,10 @@ impl<'a> SimpleHeuristic<'a> {
   pub fn new(graph: &'a HashTable) -> Self {
     Self { graph }
   }
+}
 
-  pub fn feedback_arc_set(&self) -> HashSet<Edge> {
+impl<'a> FeedbackArcSet for SimpleHeuristic<'a> {
+  fn feedback_arc_set(&self) -> HashSet<Edge> {
     let mut graph = self.graph.clone();
     let mut fas = HashSet::new();
 
@@ -55,10 +58,10 @@ impl<'a> SimpleHeuristic<'a> {
 
 #[cfg(test)]
 mod tests {
+  use crate::fas::feedback_arc_set::tests::test_feedback_arc_set;
+  use crate::fas::feedback_arc_set::FeedbackArcSet;
   use crate::fas::simple_heuristic::SimpleHeuristic;
-  use crate::graph::hash_table::{Edge, HashTable};
-  use crate::tools::cycle::CycleDetection;
-  use crate::tools::dot::Dot;
+  use crate::graph::hash_table::HashTable;
   use crate::tools::metis::graph_from_file;
   use std::collections::HashSet;
 
@@ -110,50 +113,28 @@ mod tests {
       (15, 13),
     ];
     let cyclic_graph = HashTable::from_edges(&edges);
+    let algorithm = SimpleHeuristic {
+      graph: &cyclic_graph,
+    };
 
-    test_feedback_arc_set(&cyclic_graph);
+    test_feedback_arc_set(algorithm, &cyclic_graph);
   }
 
   #[test]
   fn works_on_h_001() {
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
-    test_feedback_arc_set(&cyclic_graph);
+    let algorithm = SimpleHeuristic {
+      graph: &cyclic_graph,
+    };
+    test_feedback_arc_set(algorithm, &cyclic_graph);
   }
 
   #[test]
   fn works_on_h_025() {
     let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
-    test_feedback_arc_set(&cyclic_graph);
-  }
-
-  fn test_feedback_arc_set(cyclic_graph: &HashTable) {
-    let is_cyclic = |graph: &HashTable| -> bool { CycleDetection::new(graph).is_cyclic() };
-    assert!(is_cyclic(cyclic_graph), "No cycles found in graph!?");
     let algorithm = SimpleHeuristic {
-      graph: cyclic_graph,
+      graph: &cyclic_graph,
     };
-
-    let removable_edges = algorithm.feedback_arc_set();
-    let remove_edges = |cyclic_graph: &HashTable, edges: &HashSet<Edge>| {
-      let mut acyclic_graph = cyclic_graph.clone();
-      for edge in edges {
-        acyclic_graph.remove_edge(*edge);
-      }
-      acyclic_graph
-    };
-
-    let acyclic_graph = remove_edges(cyclic_graph, &removable_edges);
-
-    if is_cyclic(&acyclic_graph) {
-      let print_dot = |prefix, graph| {
-        println!("{}", prefix);
-        println!("{}", Dot::new(graph));
-      };
-
-      print_dot("Cyclic Graph:", cyclic_graph);
-      print_dot("Acyclic Graph:", &acyclic_graph);
-
-      panic!("Graph still has cycles!");
-    }
+    test_feedback_arc_set(algorithm, &cyclic_graph);
   }
 }
