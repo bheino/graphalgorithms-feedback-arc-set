@@ -24,7 +24,7 @@ impl<'a> TopologicalSort<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::graph::hash_table::{Edge, HashTable};
+  use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
   use crate::ordering::topological_sort::TopologicalSort;
 
   #[test]
@@ -35,6 +35,25 @@ mod tests {
     let order = TopologicalSort::new(&clique).sort_by_indegree_asc();
 
     assert_eq!(order.len(), 3);
-    // TODO Prüfen, ob aufsteigende Reihenfolge
+    assert_indegree_increasing(clique, order);
+  }
+
+  fn assert_indegree_increasing(clique: HashTable, order: Vec<VertexId>) {
+    let mut last_edge_count_in = usize::MIN;
+    let mut last_vertex = 0;
+
+    for v in order {
+      let edge_count_in = clique.edges(v, Direction::Inbound).len();
+      assert!(
+        edge_count_in >= last_edge_count_in,
+        "v({},{}) is smaller than last_vertex({},{})",
+        v,
+        edge_count_in,
+        last_vertex,
+        last_edge_count_in
+      );
+      last_edge_count_in = edge_count_in;
+      last_vertex = v;
+    }
   }
 }
