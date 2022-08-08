@@ -16,7 +16,7 @@ impl<'a> Display for Dot<'a> {
   fn fmt(&self, f: &mut Formatter<'_>) -> Result {
     writeln!(f, "digraph {{")?;
     for v in self.graph.vertices() {
-      for e in self.graph.edges(*v, Direction::Outbound) {
+      for e in self.graph.edges(v, Direction::Outbound) {
         writeln!(f, "\t {} -> {};", e.0, e.1)?;
       }
     }

@@ -81,8 +81,8 @@ impl HashTable {
   }
 
   // Returns all vertices
-  pub fn vertices(&self) -> Vec<&VertexId> {
-    Vec::from_iter(self.data.keys())
+  pub fn vertices(&self) -> Vec<VertexId> {
+    self.data.clone().into_keys().collect()
   }
 
   // Returns all edges of a vertex for a specified direction
@@ -123,10 +123,13 @@ impl HashTable {
 
   /// Adds the directed edge (u, v)
   pub fn add_edge(&mut self, e: Edge) {
-    let edges = self.data.entry(e.0).or_insert_with(Vec::default);
+    // TODO Crashed bei Graphen im Metis Format, da deren VertexID immer mit 1 beginnt anstatt 0
+    // TODO und wir aktuell von 0..n (n exklusiv!) die Map vorinitialisieren.
+    // TODO Erstellung des Graphen unabhängig von Anzahl der Knoten(-IDs) machen.
+    let x = self.data.get_mut(&e.0).unwrap();
 
-    if !edges.contains(&e.1) {
-      edges.push(e.1);
+    if !x.contains(&e.1) {
+      x.push(e.1);
     }
   }
 

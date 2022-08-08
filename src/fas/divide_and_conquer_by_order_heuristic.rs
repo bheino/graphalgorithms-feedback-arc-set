@@ -1,5 +1,5 @@
 use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
-use std::borrow::{Borrow, BorrowMut};
+use crate::ordering::topological_sort::TopologicalSort;
 use std::collections::HashSet;
 
 /*
@@ -33,18 +33,18 @@ impl<'a> DivideAndConquerByOrderHeuristic<'a> {
   }
 
   pub fn feedback_arc_set(&self) -> HashSet<Edge> {
-    let ordering = order(self.graph);
+    let ordering = order(self.graph.clone());
 
     collect_leftward_edges(self.graph, ordering)
   }
 }
 
-fn collect_leftward_edges(graph: &HashTable, ordering: Vec<&VertexId>) -> HashSet<Edge> {
+fn collect_leftward_edges(graph: &HashTable, ordering: Vec<VertexId>) -> HashSet<Edge> {
   let mut leftward_edges = HashSet::new();
 
   for v in ordering {
-    for edge in graph.edges(*v, Direction::Outbound) {
-      if edge.1 < *v {
+    for edge in graph.edges(v, Direction::Outbound) {
+      if edge.1 < v {
         leftward_edges.insert(edge);
       }
     }
@@ -53,8 +53,7 @@ fn collect_leftward_edges(graph: &HashTable, ordering: Vec<&VertexId>) -> HashSe
   leftward_edges
 }
 
-fn order(graph: &HashTable) -> Vec<&VertexId> {
-  let mut g = graph.clone();
+fn order(mut g: HashTable) -> Vec<VertexId> {
   let ordering;
   let edge_count = g.edge_count();
 
@@ -64,16 +63,16 @@ fn order(graph: &HashTable) -> Vec<&VertexId> {
     let v = vertex_with_min_indegree(&g);
     g.remove_vertex(v);
 
-    let mut ordering1 = order(&g);
-    ordering1.insert(0, &v);
+    let mut ordering1 = order(g);
+    ordering1.insert(0, v);
 
     ordering = ordering1;
   } else {
-    let sorted = vertices_in_non_decreasing_indegree_order(&g);
+    let sorted = TopologicalSort::new(&g).sort_by_indegree_asc();
     let g1 = subgraph(&g, &sorted[0..sorted.len() / 2]);
     let g2 = subgraph(&g, &sorted[sorted.len() / 2..sorted.len()]);
-    let mut s1 = order(&g1);
-    let s2 = order(&g2);
+    let mut s1 = order(g1);
+    let s2 = order(g2);
     s1.extend(s2);
     ordering = s1;
   }
@@ -85,29 +84,18 @@ fn subgraph(graph: &HashTable, vertices_to_keep: &[VertexId]) -> HashTable {
   let edges = graph
     .vertices()
     .into_iter()
-    .flat_map(|v| graph.edges(*v, Direction::Outbound))
+    .flat_map(|v| graph.edges(v, Direction::Outbound))
     .filter(|edge| vertices_to_keep.contains(&edge.0) && vertices_to_keep.contains(&edge.1))
-    .collect_vec()
-    .as_slice();
+    .collect::<Vec<_>>();
 
-  HashTable::from_edges(vertices_to_keep.len(), edges)
-}
-
-fn vertices_in_non_decreasing_indegree_order(graph: &HashTable) -> Vec<VertexId> {
-  graph
-    .vertices()
-    .iter()
-    .map(|v| (**v, graph.edges(**v, Direction::Inbound).len()))
-    // TODO .sorted_by(|v1, v2| (*v1).1.cmp(&(*v2).1))
-    .map(|pair| pair.0)
-    .collect()
+  HashTable::from_edges(vertices_to_keep.len(), edges.as_slice())
 }
 
 fn vertex_with_min_indegree(graph: &HashTable) -> VertexId {
   graph
     .vertices()
     .iter()
-    .map(|v| (**v, graph.edges(**v, Direction::Inbound).len()))
+    .map(|v| (*v, graph.edges(*v, Direction::Inbound).len()))
     .min_by(|v1, v2| (*v1).1.cmp(&(*v2).1))
     .unwrap()
     .0
