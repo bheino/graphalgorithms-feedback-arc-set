@@ -37,7 +37,7 @@ pub mod tests {
       print_dot("Cyclic Graph:", cyclic_graph);
       print_dot("Acyclic Graph:", &acyclic_graph);
 
-      //TODO Algo funktioniert nur auf planaren Graphen! panic!("Graph still has cycles!");
+      panic!("Graph still has cycles!");
     }
   }
 }

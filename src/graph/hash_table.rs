@@ -30,6 +30,14 @@ impl HashTable {
     d
   }
 
+  pub fn from_vertices_and_edges(vertices: &[VertexId], edges: &[Edge]) -> Self {
+    let mut d = HashTable::new();
+    vertices.iter().for_each(|v| d.add_vertex(*v));
+    edges.iter().for_each(|e| d.add_edge(*e));
+
+    d
+  }
+
   pub fn random<R: Rng>(n: usize, p: f64, rng: &mut R) -> HashTable {
     assert!(p <= 1.0);
     assert!(p >= 0.0);
@@ -118,6 +126,10 @@ impl HashTable {
   }
 
   // ======= Mutating Methods =======
+
+  fn add_vertex(&mut self, v: VertexId) {
+    self.data.entry(v).or_insert_with(Vec::new);
+  }
 
   /// Adds the directed edge (u, v)
   pub fn add_edge(&mut self, e: Edge) {
