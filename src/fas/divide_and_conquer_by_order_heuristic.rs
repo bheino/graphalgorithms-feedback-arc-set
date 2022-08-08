@@ -88,7 +88,7 @@ fn subgraph(graph: &HashTable, vertices_to_keep: &[VertexId]) -> HashTable {
     .filter(|edge| vertices_to_keep.contains(&edge.0) && vertices_to_keep.contains(&edge.1))
     .collect::<Vec<_>>();
 
-  HashTable::from_edges(vertices_to_keep.len(), edges.as_slice())
+  HashTable::from_edges(edges.as_slice())
 }
 
 fn vertex_with_min_indegree(graph: &HashTable) -> VertexId {

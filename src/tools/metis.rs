@@ -75,7 +75,7 @@ impl Metis {
 pub fn graph_from_file(filename: &str) -> HashTable {
   let mut parser = Metis::new(filename);
   parser.parse();
-  HashTable::from_edges(parser.vertices(), parser.edges())
+  HashTable::from_edges(parser.edges())
 }
 
 #[cfg(test)]

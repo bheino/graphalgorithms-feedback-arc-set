@@ -58,7 +58,7 @@ pub mod tests {
 
   #[test]
   fn is_cyclic() {
-    let mut graph = HashTable::new(3);
+    let mut graph = HashTable::new();
     graph.add_edge((0, 1));
     graph.add_edge((1, 2));
     graph.add_edge((2, 0));
@@ -69,7 +69,7 @@ pub mod tests {
 
   #[test]
   fn is_acyclic() {
-    let mut graph = HashTable::new(3);
+    let mut graph = HashTable::new();
     graph.add_edge((0, 1));
     graph.add_edge((1, 2));
     let mut dfs = CycleDetection::new(&graph);

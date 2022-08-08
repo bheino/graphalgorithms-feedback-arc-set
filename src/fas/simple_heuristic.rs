@@ -66,7 +66,7 @@ mod tests {
   #[test]
   fn works_on_simple_clique() {
     let edges = [(0, 1), (1, 2), (2, 0)];
-    let clique = HashTable::from_edges(3, &edges);
+    let clique = HashTable::from_edges(&edges);
 
     let fas = SimpleHeuristic { graph: &clique }.feedback_arc_set();
 
@@ -110,7 +110,7 @@ mod tests {
       (15, 10),
       (15, 13),
     ];
-    let cyclic_graph = HashTable::from_edges(19, &edges);
+    let cyclic_graph = HashTable::from_edges(&edges);
 
     test_feedback_arc_set(&cyclic_graph, 4..(5 * 4), false, true);
   }

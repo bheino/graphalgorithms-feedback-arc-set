@@ -17,16 +17,14 @@ pub struct HashTable {
 impl HashTable {
   // ======= Creational Methods =======
 
-  pub fn new(n: usize) -> Self {
+  pub fn new() -> Self {
     Self {
-      data: (0..n)
-        .map(|v| (v as VertexId, Vec::default()))
-        .collect::<HashMap<_, _>>(),
+      data: HashMap::new(),
     }
   }
 
-  pub fn from_edges(n: usize, edges: &[Edge]) -> Self {
-    let mut d = HashTable::new(n);
+  pub fn from_edges(edges: &[Edge]) -> Self {
+    let mut d = HashTable::new();
     edges.iter().for_each(|e| d.add_edge(*e));
 
     d
@@ -35,7 +33,7 @@ impl HashTable {
   pub fn random<R: Rng>(n: usize, p: f64, rng: &mut R) -> HashTable {
     assert!(p <= 1.0);
     assert!(p >= 0.0);
-    let mut graph = HashTable::new(n);
+    let mut graph = HashTable::new();
     for u in 0..n as u32 {
       for v in 0..n as u32 {
         if u == v {
@@ -52,7 +50,7 @@ impl HashTable {
 
   /// Creates a complete graph, i.e. a clique of size *n*
   pub fn complete(n: usize) -> HashTable {
-    let mut graph = HashTable::new(n);
+    let mut graph = HashTable::new();
     for u in 0..n as VertexId {
       for v in (u + 1)..n as VertexId {
         graph.add_edge((u, v));
@@ -123,14 +121,12 @@ impl HashTable {
 
   /// Adds the directed edge (u, v)
   pub fn add_edge(&mut self, e: Edge) {
-    // TODO Crashed bei Graphen im Metis Format, da deren VertexID immer mit 1 beginnt anstatt 0
-    // TODO und wir aktuell von 0..n (n exklusiv!) die Map vorinitialisieren.
-    // TODO Erstellung des Graphen unabhängig von Anzahl der Knoten(-IDs) machen.
-    let x = self.data.get_mut(&e.0).unwrap();
-
-    if !x.contains(&e.1) {
-      x.push(e.1);
+    let edges = self.data.entry(e.0).or_insert_with(Vec::new);
+    if !edges.contains(&e.1) {
+      edges.push(e.1);
     }
+
+    self.data.entry(e.1).or_insert_with(Vec::new);
   }
 
   pub fn remove_vertex(&mut self, v: VertexId) {
@@ -170,7 +166,7 @@ pub mod tests {
 
   #[test]
   fn construct_graph() {
-    let empty_graph = HashTable::new(0);
+    let mut empty_graph = HashTable::new();
     assert_eq!(empty_graph.order(), 0);
 
     let should_panic = panic::catch_unwind(|| {
@@ -178,13 +174,13 @@ pub mod tests {
     });
     assert!(should_panic.is_err());
 
-    let graph = HashTable::new(5);
-    assert_eq!(graph.order(), 5);
+    empty_graph.add_edge((2, 3));
+    assert_eq!(empty_graph.order(), 2);
   }
 
   #[test]
   fn add_edges() {
-    let mut graph = HashTable::new(5);
+    let mut graph = HashTable::new();
     for u in 0..5 {
       for v in (u + 1)..5 {
         graph.add_edge((u, v));
@@ -209,7 +205,7 @@ pub mod tests {
 
   #[test]
   fn neighborhood() {
-    let mut graph = HashTable::new(5);
+    let mut graph = HashTable::new();
 
     let to_add = vec![3, 4, 1, 1, 4];
     let u = 2;

@@ -30,7 +30,7 @@ mod tests {
   #[test]
   fn works_on_simple_clique() {
     let edges = [(0, 1), (1, 2), (2, 0)];
-    let clique = HashTable::from_edges(3, &edges);
+    let clique = HashTable::from_edges(&edges);
 
     let order = TopologicalSort::new(&clique).sort_by_indegree_asc();
 
