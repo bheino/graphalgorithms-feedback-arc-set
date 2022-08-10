@@ -1,4 +1,3 @@
-use crate::graph::hash_table::HashTable;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
@@ -78,16 +77,9 @@ impl Metis {
   }
 }
 
-pub fn graph_from_file(filename: &str) -> HashTable {
-  let mut parser = Metis::new(filename);
-  parser.parse();
-
-  HashTable::from_vertices_and_edges(parser.vertices(), parser.edges())
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::tools::metis::graph_from_file;
+  use crate::tools::graphs::graph_from_file;
   use crate::tools::metis::Metis;
 
   #[test]
@@ -113,7 +105,7 @@ mod tests {
 
   #[test]
   fn can_load_graph_from_file() {
-    let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
+    let cyclic_graph = graph_from_file("h_001");
 
     assert_eq!(cyclic_graph.vertices().len(), 1024);
     assert_eq!(

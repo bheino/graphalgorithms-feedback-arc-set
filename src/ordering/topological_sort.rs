@@ -26,6 +26,7 @@ impl<'a> TopologicalSort<'a> {
 mod tests {
   use crate::graph::hash_table::{Direction, HashTable, VertexId};
   use crate::ordering::topological_sort::TopologicalSort;
+  use crate::tools::graphs::{graph_from_file, graph_with_multiple_cliques};
 
   #[test]
   fn works_on_simple_clique() {
@@ -38,12 +39,41 @@ mod tests {
     assert_indegree_increasing(clique, order);
   }
 
+  #[test]
+  fn works_on_multiple_cliques() {
+    let cyclic_graph = graph_with_multiple_cliques();
+    let order = TopologicalSort::new(&cyclic_graph).sort_by_indegree_asc();
+
+    assert_eq!(order.len(), 19);
+    assert_indegree_increasing(cyclic_graph, order);
+  }
+
+  #[test]
+  fn works_on_h_001() {
+    let cyclic_graph = graph_from_file("h_001");
+    let order = TopologicalSort::new(&cyclic_graph).sort_by_indegree_asc();
+
+    assert_eq!(order.len(), 1024);
+    assert_indegree_increasing(cyclic_graph, order);
+  }
+
+  #[test]
+  fn works_on_h_025() {
+    let cyclic_graph = graph_from_file("h_025");
+    let order = TopologicalSort::new(&cyclic_graph).sort_by_indegree_asc();
+
+    assert_eq!(order.len(), 1024);
+    assert_indegree_increasing(cyclic_graph, order);
+  }
+
   fn assert_indegree_increasing(clique: HashTable, order: Vec<VertexId>) {
     let mut last_edge_count_in = usize::MIN;
     let mut last_vertex = 0;
 
+    print!("Edge Count Indegree: ");
     for v in order {
       let edge_count_in = clique.edges(v, Direction::Inbound).len();
+      print!("{}, ", edge_count_in);
       assert!(
         edge_count_in >= last_edge_count_in,
         "v({},{}) is smaller than last_vertex({},{})",
