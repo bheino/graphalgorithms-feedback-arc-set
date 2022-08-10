@@ -26,12 +26,13 @@ impl<'a> TopologicalSort<'a> {
 mod tests {
   use crate::graph::hash_table::{Direction, HashTable, VertexId};
   use crate::ordering::topological_sort::TopologicalSort;
-  use crate::tools::graphs::{graph_from_file, graph_with_multiple_cliques};
+  use crate::tools::graphs::{
+    graph_from_file, graph_with_multiple_cliques, graph_with_simple_clique,
+  };
 
   #[test]
   fn works_on_simple_clique() {
-    let edges = [(0, 1), (1, 2), (2, 0)];
-    let clique = HashTable::from_edges(&edges);
+    let clique = graph_with_simple_clique();
 
     let order = TopologicalSort::new(&clique).sort_by_indegree_asc();
 

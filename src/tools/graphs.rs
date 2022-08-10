@@ -53,3 +53,8 @@ pub fn graph_with_multiple_cliques() -> HashTable {
   ];
   HashTable::from_edges(&edges)
 }
+
+pub fn graph_with_simple_clique() -> HashTable {
+  let edges = [(0, 1), (1, 2), (2, 0)];
+  HashTable::from_edges(&edges)
+}
