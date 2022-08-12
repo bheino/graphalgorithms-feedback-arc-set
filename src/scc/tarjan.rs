@@ -25,8 +25,10 @@ impl<'a> Tarjan<'a> {
       index: 0,
     }
   }
+}
 
-  fn scc(&mut self, v: &'a mut Vertex) {
+impl<'a> Tarjan<'a> {
+  fn scc(&'a mut self, v: &'a mut Vertex) {
     v.index = self.index;
     v.low_link = self.index;
     self.index += 1;
@@ -59,8 +61,8 @@ impl<'a> Tarjan<'a> {
   }
 }
 
-impl<'a> StronglyConnectedComponents for Tarjan<'a> {
-  fn strongly_connected_components(&mut self) -> HashSet<VertexId> {
+impl<'a> StronglyConnectedComponents<'a> for Tarjan<'a> {
+  fn strongly_connected_components(&'a mut self) -> HashSet<VertexId> {
     let mut stack: Vec<&Vertex> = Vec::new();
 
     for v in self.vertices.values_mut() {
@@ -68,7 +70,6 @@ impl<'a> StronglyConnectedComponents for Tarjan<'a> {
         self.scc(v);
       }
     }
-
     HashSet::from_iter(self.graph.vertices())
   }
 }
