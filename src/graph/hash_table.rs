@@ -109,10 +109,10 @@ impl HashTable {
     edges.iter().map(|v2| (v, *v2)).collect()
   }
 
-  pub fn neighborhood(&self, v: VertexId) -> &[VertexId] {
+  pub fn neighborhood(&self, v: &VertexId) -> &[VertexId] {
     self
       .data
-      .get(&v)
+      .get(v)
       .map(|neighbors| neighbors.as_slice())
       .unwrap_or_default()
   }
@@ -225,7 +225,7 @@ pub mod tests {
       graph.add_edge((u, *v));
     }
 
-    let mut added: Vec<_> = graph.neighborhood(u).to_vec();
+    let mut added: Vec<_> = graph.neighborhood(&u).to_vec();
     added.sort_unstable();
 
     assert_eq!(added, vec![1, 3, 4]);

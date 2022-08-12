@@ -111,7 +111,7 @@ mod tests {
     assert_eq!(
       cyclic_graph
         .vertices()
-        .into_iter()
+        .iter()
         .map(|v| cyclic_graph.neighborhood(v).len())
         .sum::<usize>(),
       2103

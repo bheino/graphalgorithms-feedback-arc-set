@@ -40,7 +40,7 @@ impl<'a> CycleDetection<'a> {
     self.visited[v as usize] = true;
     self.stack[v as usize] = true;
 
-    for neighbor in self.graph.neighborhood(v) {
+    for neighbor in self.graph.neighborhood(&v) {
       if self.is_cyclic_util(*neighbor) {
         return true;
       }
