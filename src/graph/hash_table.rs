@@ -109,6 +109,18 @@ impl HashTable {
     edges.iter().map(|v2| (v, *v2)).collect()
   }
 
+  pub fn all_edges(&self) -> Vec<Edge> {
+    self
+      .data
+      .iter()
+      .fold(vec![], |mut edges, (&source_idx, target_idxs)| {
+        target_idxs
+          .iter()
+          .for_each(|&target_idx| edges.push((source_idx, target_idx)));
+        edges
+      })
+  }
+
   pub fn neighborhood(&self, v: VertexId) -> &[VertexId] {
     self
       .data

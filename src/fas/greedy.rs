@@ -39,14 +39,12 @@ impl FeedbackArcSet for GreedyHeuristic<'_> {
     // as long as the graph has vertices
     while self.graph.vertices().len() != container.deleted_nodes.len() {
       for sink in container.sinks() {
-        println!("sinks: {:?}", sink);
         s2.push_front(sink.vertex_id);
         container.deleted_nodes.push(sink.vertex_id);
         container.update_fas_nodes(self.graph);
       }
 
       for source in container.sources() {
-        println!("sources: {:?}", source);
         s1.push_back(source.vertex_id);
         container.deleted_nodes.push(source.vertex_id);
         container.update_fas_nodes(self.graph);
@@ -64,8 +62,18 @@ impl FeedbackArcSet for GreedyHeuristic<'_> {
       }
     }
 
-    let s = s1.iter().chain(s2.iter()).map(|x| *x).collect::<Vec<_>>();
+    let s = s1.into_iter().chain(s2).collect::<Vec<_>>();
     println!("{:?}", s);
+
+    // TODO
+    let nodes_to_delete = self
+      .graph
+      .all_edges()
+      .into_iter()
+      .filter(|(source_idx, target_idx)| s[*source_idx as usize] >= s[*target_idx as usize])
+      .collect::<Vec<_>>();
+
+    println!("{:?}", nodes_to_delete);
 
     HashSet::new()
   }
@@ -108,24 +116,6 @@ impl FasContainer {
       deleted_nodes: vec![],
       fas_nodes,
     }
-  }
-
-  fn delta_positive(&self) -> Vec<FasNode> {
-    self
-      .fas_nodes
-      .iter()
-      .cloned()
-      .filter(|fas_node| fas_node.delta >= 0)
-      .collect()
-  }
-
-  fn delta_negative(&self) -> Vec<FasNode> {
-    self
-      .fas_nodes
-      .iter()
-      .cloned()
-      .filter(|fas_node| fas_node.delta < 0)
-      .collect()
   }
 
   fn sources(&self) -> Vec<FasNode> {
