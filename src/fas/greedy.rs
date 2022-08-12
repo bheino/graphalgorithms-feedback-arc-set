@@ -31,83 +31,152 @@ impl<'a> GreedyHeuristic<'a> {
 
 impl FeedbackArcSet for GreedyHeuristic<'_> {
   fn feedback_arc_set(&self) -> HashSet<Edge> {
-    let mut deleted_nodes = HashSet::new();
-    let initial_fas_nodes = self.initial_fas_nodes();
-
-    println!("{:?}", initial_fas_nodes);
+    let mut container = FasContainer::new(self.graph);
 
     let mut s1 = VecDeque::new();
     let mut s2 = VecDeque::new();
 
     // as long as the graph has vertices
-    // while self.graph.vertices().len() != deleted_nodes.len() {
-    // find all sinks
-    let sinks = initial_fas_nodes
-      .iter()
-      .filter(|fas_node| fas_node.in_degree > fas_node.out_degree)
-      .collect::<Vec<_>>();
+    while self.graph.vertices().len() != container.deleted_nodes.len() {
+      for sink in container.sinks() {
+        println!("sinks: {:?}", sink);
+        s2.push_front(sink.vertex_id);
+        container.deleted_nodes.push(sink.vertex_id);
+        container.update_fas_nodes(self.graph);
+      }
 
-    for sink in sinks {
-      println!("sinks: {:?}", sink);
-      // todo update initial_fas_nodes
-      s2.push_front(sink);
-      deleted_nodes.insert(sink);
+      for source in container.sources() {
+        println!("sources: {:?}", source);
+        s1.push_back(source.vertex_id);
+        container.deleted_nodes.push(source.vertex_id);
+        container.update_fas_nodes(self.graph);
+      }
+
+      let maximum_delta = container
+        .fas_nodes
+        .iter()
+        .max_by(|x, y| x.delta.cmp(&y.delta));
+
+      if let Some(maximum_delta) = maximum_delta {
+        s1.push_back(maximum_delta.vertex_id);
+        container.deleted_nodes.push(maximum_delta.vertex_id);
+        container.update_fas_nodes(self.graph)
+      }
     }
 
-    // find all sources
-    let sources = initial_fas_nodes
-      .iter()
-      .filter(|fas_node| fas_node.in_degree < fas_node.out_degree)
-      .collect::<Vec<_>>();
-
-    for source in sources {
-      println!("sources: {:?}", source);
-      // todo update initial_fas_nodes
-      s1.push_back(source);
-      deleted_nodes.insert(source);
-    }
-    // }
+    let s = s1.iter().chain(s2.iter()).map(|x| *x).collect::<Vec<_>>();
+    println!("{:?}", s);
 
     HashSet::new()
   }
 }
 
-impl GreedyHeuristic<'_> {
-  fn initial_fas_nodes(&self) -> Vec<FasNode> {
-    self
-      .graph
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
+struct FasNode {
+  vertex_id: VertexId,
+  delta: isize,
+  out_degree: usize,
+  in_degree: usize,
+}
+
+#[derive(Debug, Clone)]
+struct FasContainer {
+  deleted_nodes: Vec<VertexId>,
+  fas_nodes: Vec<FasNode>,
+}
+
+impl FasContainer {
+  fn new(graph: &HashTable) -> Self {
+    let fas_nodes = graph
       .vertices()
       .iter()
       .fold(vec![], |mut fas_nodes, &vertex_id| {
-        let out_degree = self
-          .graph
-          .edges(vertex_id, Direction::Outbound)
-          .iter()
-          .count();
-        let in_degree = self
-          .graph
-          .edges(vertex_id, Direction::Inbound)
-          .iter()
-          .count();
-        let degree = out_degree + in_degree;
+        let out_degree = graph.edges(vertex_id, Direction::Outbound).iter().count();
+        let in_degree = graph.edges(vertex_id, Direction::Inbound).iter().count();
+        let delta = out_degree as isize - in_degree as isize;
 
         fas_nodes.push(FasNode {
           vertex_id,
-          degree,
+          delta,
           out_degree,
           in_degree,
         });
         fas_nodes
-      })
-  }
-}
+      });
 
-#[derive(Debug, Eq, PartialEq, Hash)]
-struct FasNode {
-  vertex_id: VertexId,
-  degree: usize,
-  out_degree: usize,
-  in_degree: usize,
+    Self {
+      deleted_nodes: vec![],
+      fas_nodes,
+    }
+  }
+
+  fn delta_positive(&self) -> Vec<FasNode> {
+    self
+      .fas_nodes
+      .iter()
+      .cloned()
+      .filter(|fas_node| fas_node.delta >= 0)
+      .collect()
+  }
+
+  fn delta_negative(&self) -> Vec<FasNode> {
+    self
+      .fas_nodes
+      .iter()
+      .cloned()
+      .filter(|fas_node| fas_node.delta < 0)
+      .collect()
+  }
+
+  fn sources(&self) -> Vec<FasNode> {
+    self
+      .fas_nodes
+      .iter()
+      .cloned()
+      .filter(|fas_node| fas_node.in_degree == 0)
+      .collect()
+  }
+
+  fn sinks(&self) -> Vec<FasNode> {
+    self
+      .fas_nodes
+      .iter()
+      .cloned()
+      .filter(|fas_node| fas_node.out_degree == 0)
+      .collect()
+  }
+
+  fn update_fas_nodes(&mut self, graph: &HashTable) {
+    self.fas_nodes = graph
+      .vertices()
+      .iter()
+      .filter(|&vertex_id| !self.deleted_nodes.contains(vertex_id))
+      .fold(vec![], |mut fas_nodes, &vertex_id| {
+        let out_degree = graph
+          .edges(vertex_id, Direction::Outbound)
+          .iter()
+          .filter(|(source_id, target_id)| {
+            !self.deleted_nodes.contains(source_id) && !self.deleted_nodes.contains(target_id)
+          })
+          .count();
+        let in_degree = graph
+          .edges(vertex_id, Direction::Inbound)
+          .iter()
+          .filter(|(source_id, target_id)| {
+            !self.deleted_nodes.contains(source_id) && !self.deleted_nodes.contains(target_id)
+          })
+          .count();
+        let delta = out_degree as isize - in_degree as isize;
+
+        fas_nodes.push(FasNode {
+          vertex_id,
+          delta,
+          out_degree,
+          in_degree,
+        });
+        fas_nodes
+      });
+  }
 }
 
 #[cfg(test)]
@@ -162,6 +231,6 @@ mod test {
     print!("{}", Dot::new(&graph));
 
     let algo = GreedyHeuristic::new(&graph);
-    algo.feedback_arc_set();
+    println!("{:?}", algo.feedback_arc_set());
   }
 }
