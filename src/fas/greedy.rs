@@ -66,16 +66,12 @@ impl FeedbackArcSet for GreedyHeuristic<'_> {
     println!("{:?}", s);
 
     // TODO
-    let nodes_to_delete = self
+    self
       .graph
       .all_edges()
       .into_iter()
       .filter(|(source_idx, target_idx)| s[*source_idx as usize] >= s[*target_idx as usize])
-      .collect::<Vec<_>>();
-
-    println!("{:?}", nodes_to_delete);
-
-    HashSet::new()
+      .collect()
   }
 }
 
