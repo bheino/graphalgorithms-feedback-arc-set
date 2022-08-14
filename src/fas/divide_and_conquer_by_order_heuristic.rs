@@ -110,7 +110,9 @@ mod tests {
   use crate::fas::feedback_arc_set::tests::test_feedback_arc_set;
   use crate::fas::feedback_arc_set::FeedbackArcSet;
   use crate::graph::hash_table::HashTable;
-  use crate::tools::graphs::{graph_from_file, graph_with_multiple_cliques};
+  use crate::tools::graphs::{
+    graph_from_file, graph_from_wikipedia_scc, graph_with_multiple_cliques,
+  };
   use std::collections::HashSet;
 
   #[test]
@@ -145,6 +147,15 @@ mod tests {
   #[test]
   fn works_on_h_025() {
     let cyclic_graph = graph_from_file("h_025");
+    let algorithm = DivideAndConquerByOrderHeuristic {
+      graph: &cyclic_graph,
+    };
+    test_feedback_arc_set(algorithm, &cyclic_graph);
+  }
+
+  #[test]
+  fn works_on_wikipedia_scc() {
+    let cyclic_graph = graph_from_wikipedia_scc();
     let algorithm = DivideAndConquerByOrderHeuristic {
       graph: &cyclic_graph,
     };

@@ -93,20 +93,22 @@ impl HashTable {
 
   // Returns all edges of a vertex for a specified direction
   pub fn edges(&self, v: VertexId, d: Direction) -> Vec<Edge> {
-    let edges = match d {
-      Direction::Outbound => self.data.get(&v).unwrap().clone(),
-      Direction::Inbound => {
-        let x = self
-          .data
-          .iter()
-          .filter(|(_, neighbours)| neighbours.contains(&v))
-          .map(|(vertex, _)| *vertex)
-          .collect();
-        x
-      }
-    };
-
-    edges.iter().map(|v2| (v, *v2)).collect()
+    match d {
+      Direction::Outbound => self
+        .data
+        .get(&v)
+        .unwrap()
+        .iter()
+        .map(|v2| (v, *v2))
+        .collect(),
+      Direction::Inbound => self
+        .data
+        .iter()
+        .filter(|(_, neighbours)| neighbours.contains(&v))
+        .map(|(vertex, _)| *vertex)
+        .map(|v2| (v2, v))
+        .collect(),
+    }
   }
 
   pub fn neighborhood(&self, v: &VertexId) -> &[VertexId] {
