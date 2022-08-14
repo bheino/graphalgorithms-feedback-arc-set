@@ -34,17 +34,12 @@ impl<'a> FeedbackArcSet for SimpleHeuristic<'a> {
 
     while graph.order() > 0 {
       let v = graph.random_vertex();
-      println!("Chosen v = {}", v);
       let edges_in = graph.edges(v, Direction::Inbound);
       let edges_out = graph.edges(v, Direction::Outbound);
-      println!("Edges In = {:?}", edges_in);
-      println!("Edges Out = {:?}", edges_out);
 
       if edges_in.len() < edges_out.len() {
-        println!("Chosen Edges = {:?}", edges_in);
         fas.extend(edges_in);
       } else {
-        println!("Chosen Edges = {:?}", edges_out);
         fas.extend(edges_out)
       }
 

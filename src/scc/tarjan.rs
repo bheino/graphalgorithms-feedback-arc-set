@@ -74,7 +74,6 @@ impl Tarjan<'_> {
         .iter()
         .map(|i| self.vertices[*i].id)
         .collect::<HashSet<_>>();
-      println!("SCC: {:?}", scc);
       self.sccs.push(scc);
     }
   }
