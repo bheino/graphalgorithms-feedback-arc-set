@@ -17,7 +17,7 @@ pub fn graph_from_file(filename: &str) -> HashTable {
 }
 
 pub fn graph_with_multiple_cliques() -> HashTable {
-  let edges = [
+  HashTable::from_edges(&[
     (0, 1),
     (0, 7),
     (1, 2),
@@ -50,8 +50,27 @@ pub fn graph_with_multiple_cliques() -> HashTable {
     (6, 7),
     (15, 10),
     (15, 13),
-  ];
-  HashTable::from_edges(&edges)
+  ])
+}
+
+// Returns graph of 3 SCCs. Based on https://en.wikipedia.org/wiki/Strongly_connected_component, a=1, ...,h=8
+pub fn graph_from_wikipedia_scc() -> HashTable {
+  HashTable::from_edges(&[
+    (1, 2),
+    (2, 3),
+    (3, 4),
+    (4, 3),
+    (4, 8),
+    (8, 4),
+    (8, 7),
+    (3, 7),
+    (7, 6),
+    (6, 7),
+    (2, 6),
+    (2, 5),
+    (5, 6),
+    (5, 1),
+  ])
 }
 
 pub fn graph_with_simple_clique() -> HashTable {
