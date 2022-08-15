@@ -1,1 +1,1 @@
-mod stochastic_evolution;
+pub mod stochastic_evolution;

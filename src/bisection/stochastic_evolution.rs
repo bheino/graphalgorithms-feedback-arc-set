@@ -9,7 +9,7 @@ p := p0 ; {initial value for parameter p}
 set value for iteration control parameter R;
 counter := 0;
 repeat
-    Cpre := cost(V1 , V2 );
+    Cpre := cost(B1 , B2 );
     perturb(V, V1 , V2 , p);
     Cpost := cost(V1 , V2 );
     if Cpost < Cpre then

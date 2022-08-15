@@ -1,3 +1,4 @@
+pub mod divide_and_conquer_by_bisection;
 pub mod divide_and_conquer_by_order_heuristic;
 pub mod feedback_arc_set;
 pub mod simple_heuristic;
