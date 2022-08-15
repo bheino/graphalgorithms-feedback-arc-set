@@ -31,6 +31,11 @@ use std::collections::HashSet;
 
 const ALPHA: f32 = 0.6;
 
+pub enum Bisection {
+  CurrentBisection,
+  BestBisection,
+}
+
 pub struct StochasticEvolution<'a> {
   graph: &'a HashTable,
   current_bisection: (Vec<usize>, Vec<usize>),
@@ -62,9 +67,9 @@ impl<'a> StochasticEvolution<'a> {
     let mut counter = 0;
 
     loop {
-      let c_pre = self.cost();
+      let c_pre = self.cost(Bisection::BestBisection);
       self.perturb(p);
-      let c_post = self.cost();
+      let c_post = self.cost(Bisection::CurrentBisection);
       if c_post < c_pre {
         self.best_bisection = self.current_bisection.clone();
         counter -= initial_r;
@@ -105,33 +110,45 @@ impl<'a> StochasticEvolution<'a> {
       }
     }
 
-    let bisection;
+    let mut bisection;
     let mut stack;
+    let is_left_bisection;
     if self.current_bisection.0.len() > self.current_bisection.1.len() {
-      bisection = self.current_bisection.0.clone();
+      bisection = &self.current_bisection.0;
       stack = s1;
+      is_left_bisection = true;
     } else {
-      bisection = self.current_bisection.1.clone();
+      bisection = &self.current_bisection.1;
       stack = s2;
+      is_left_bisection = false;
     }
 
     while bisection.len() as f32 > (ALPHA * self.vertices.len() as f32) {
       let i = stack.pop().unwrap();
       self.move_vertex(i);
+      if is_left_bisection {
+        bisection = &self.current_bisection.0;
+      } else {
+        bisection = &self.current_bisection.1;
+      }
     }
   }
 
   // Number of Edges from Partition 2 to Partition 1
-  fn cost(&mut self) -> usize {
+  fn cost(&mut self, on: Bisection) -> usize {
     let mut cost = 0;
+    let correct_bisection = match on {
+      Bisection::CurrentBisection => &self.current_bisection,
+      Bisection::BestBisection => &self.best_bisection,
+    };
 
-    let bisection_2 = &self.current_bisection.1;
+    let bisection_2 = &correct_bisection.1;
     for v_2_index in bisection_2 {
       let v_2 = self.vertices[*v_2_index];
       for (_, neighbour) in self.graph.edges(v_2, Direction::Outbound) {
         let neighbor_pos = self.vertices.iter().position(|v| *v == neighbour).unwrap();
         // check if neighbor is in other partition
-        if self.current_bisection.0.contains(&neighbor_pos) {
+        if correct_bisection.0.contains(&neighbor_pos) {
           cost += 1;
         }
       }
@@ -142,10 +159,10 @@ impl<'a> StochasticEvolution<'a> {
 
   // Returns the reduction in cost, if move(i) would be executed.
   fn gain(&mut self, i: usize) -> i32 {
-    let cost_current = self.cost();
+    let cost_current = self.cost(Bisection::CurrentBisection);
     self.move_vertex(i);
 
-    let cost_if_moved = self.cost();
+    let cost_if_moved = self.cost(Bisection::CurrentBisection);
     // Reverse previous move
     self.move_vertex(i);
 
@@ -185,7 +202,7 @@ fn initial_bisection(vertices_count: usize) -> (Vec<usize>, Vec<usize>) {
 
 #[cfg(test)]
 mod tests {
-  use crate::bisection::stochastic_evolution::StochasticEvolution;
+  use crate::bisection::stochastic_evolution::{Bisection, StochasticEvolution};
   use crate::tools::graphs::graph_from_wikipedia_scc;
   use std::collections::HashSet;
 
@@ -236,8 +253,8 @@ mod tests {
     let graph = graph_from_wikipedia_scc();
     let mut algorithm = StochasticEvolution::new(&graph);
 
-    let cost_1 = algorithm.cost();
-    let cost_2 = algorithm.cost();
+    let cost_1 = algorithm.cost(Bisection::CurrentBisection);
+    let cost_2 = algorithm.cost(Bisection::CurrentBisection);
 
     assert_eq!(cost_1, cost_2);
     assert_eq!(cost_1, 2);
