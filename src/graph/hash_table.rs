@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 use crate::tools::cycle::CycleDetection;
 
@@ -196,6 +196,24 @@ impl HashTable {
       }
       None => (),
     };
+  }
+
+  // Returns all edges that start in from_partition and end in to_partition
+  pub fn edges_from_to(
+    &self,
+    from_partition: &HashSet<VertexId>,
+    to_partition: &HashSet<VertexId>,
+  ) -> HashSet<Edge> {
+    let edges = from_partition
+      .iter()
+      .flat_map(|source| self.edges(*source, Direction::Outbound))
+      .filter(|(_, destination)| to_partition.contains(destination))
+      .collect::<HashSet<Edge>>();
+
+    debug_assert!(edges
+      .iter()
+      .all(|(source, dest)| from_partition.contains(source) && to_partition.contains(dest)));
+    edges
   }
 
   // ======= Algorithm Methods =======

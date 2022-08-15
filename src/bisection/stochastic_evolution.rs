@@ -9,7 +9,7 @@ p := p0 ; {initial value for parameter p}
 set value for iteration control parameter R;
 counter := 0;
 repeat
-    Cpre := cost(V1 , V2 );
+    Cpre := cost(B1 , B2 );
     perturb(V, V1 , V2 , p);
     Cpost := cost(V1 , V2 );
     if Cpost < Cpre then
@@ -104,8 +104,10 @@ impl<'a> StochasticEvolution<'a> {
         self.move_vertex(i);
         if self.current_bisection.0.contains(&i) {
           s1.push(i);
-        } else {
+        } else if self.current_bisection.1.contains(&i) {
           s2.push(i);
+        } else {
+          panic!("No bisection containts vertex idx {}", i);
         }
       }
     }
