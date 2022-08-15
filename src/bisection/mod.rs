@@ -146,12 +146,10 @@ impl<'a> StochasticEvolution<'a> {
   }
 
   fn gain(&mut self, p0: usize) -> i32 {
-    todo!()
+    1
   }
 
-  fn move_vertex(&mut self, i: usize) {
-    todo!()
-  }
+  fn move_vertex(&mut self, i: usize) {}
 }
 
 fn initial_bisection(vertices_count: usize) -> (Vec<usize>, Vec<usize>) {
