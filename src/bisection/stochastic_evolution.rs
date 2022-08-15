@@ -104,8 +104,10 @@ impl<'a> StochasticEvolution<'a> {
         self.move_vertex(i);
         if self.current_bisection.0.contains(&i) {
           s1.push(i);
-        } else {
+        } else if self.current_bisection.1.contains(&i) {
           s2.push(i);
+        } else {
+          panic!("No bisection containts vertex idx {}", i);
         }
       }
     }
