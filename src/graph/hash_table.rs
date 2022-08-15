@@ -38,6 +38,19 @@ impl HashTable {
     d
   }
 
+  pub fn from_graph(graph: &HashTable, vertices_to_keep: &[VertexId]) -> HashTable {
+    let edges = graph
+      .vertices()
+      .into_iter()
+      .flat_map(|v| graph.edges(v, Direction::Outbound))
+      .filter(|(source, destination)| {
+        vertices_to_keep.contains(source) && vertices_to_keep.contains(destination)
+      })
+      .collect::<Vec<_>>();
+
+    HashTable::from_vertices_and_edges(vertices_to_keep, edges.as_slice())
+  }
+
   pub fn random<R: Rng>(n: usize, p: f64, rng: &mut R) -> HashTable {
     assert!(p <= 1.0);
     assert!(p >= 0.0);
@@ -83,7 +96,7 @@ impl HashTable {
   }
 
   pub fn edge_count(&self) -> usize {
-    self.data.iter().map(|edges| edges.1.len()).sum()
+    self.data.iter().map(|(_, edges)| edges.len()).sum()
   }
 
   // Returns all vertices
@@ -93,20 +106,22 @@ impl HashTable {
 
   // Returns all edges of a vertex for a specified direction
   pub fn edges(&self, v: VertexId, d: Direction) -> Vec<Edge> {
-    let edges = match d {
-      Direction::Outbound => self.data.get(&v).unwrap().clone(),
-      Direction::Inbound => {
-        let x = self
-          .data
-          .iter()
-          .filter(|(_, neighbours)| neighbours.contains(&v))
-          .map(|(vertex, _)| *vertex)
-          .collect();
-        x
-      }
-    };
-
-    edges.iter().map(|v2| (v, *v2)).collect()
+    match d {
+      Direction::Outbound => self
+        .data
+        .get(&v)
+        .unwrap()
+        .iter()
+        .map(|v2| (v, *v2))
+        .collect(),
+      Direction::Inbound => self
+        .data
+        .iter()
+        .filter(|(_, neighbours)| neighbours.contains(&v))
+        .map(|(vertex, _)| *vertex)
+        .map(|v2| (v2, v))
+        .collect(),
+    }
   }
 
   pub fn all_edges(&self) -> Vec<Edge> {
@@ -124,7 +139,7 @@ impl HashTable {
   pub fn neighborhood(&self, v: VertexId) -> &[VertexId] {
     self
       .data
-      .get(&v)
+      .get(v)
       .map(|neighbors| neighbors.as_slice())
       .unwrap_or_default()
   }
@@ -186,6 +201,8 @@ impl HashTable {
 #[cfg(test)]
 pub mod tests {
   use crate::graph::hash_table::HashTable;
+  use crate::tools::graphs::graph_from_wikipedia_scc;
+  use std::collections::HashSet;
   use std::panic;
 
   #[test]
@@ -237,9 +254,20 @@ pub mod tests {
       graph.add_edge((u, *v));
     }
 
-    let mut added: Vec<_> = graph.neighborhood(u).to_vec();
+    let mut added: Vec<_> = graph.neighborhood(&u).to_vec();
     added.sort_unstable();
 
     assert_eq!(added, vec![1, 3, 4]);
+  }
+
+  #[test]
+  fn from_graph() {
+    let graph = graph_from_wikipedia_scc();
+    let vertices_to_keep = &[1, 2, 5, 8];
+    let subgraph = HashTable::from_graph(&graph, vertices_to_keep);
+
+    let vertices = HashSet::from_iter(subgraph.vertices());
+    let vertices2 = HashSet::from(*vertices_to_keep);
+    assert_eq!(vertices, vertices2);
   }
 }

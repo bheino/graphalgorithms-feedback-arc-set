@@ -1,6 +1,6 @@
 use crate::fas::feedback_arc_set::FeedbackArcSet;
-use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
-use crate::ordering::topological_sort::TopologicalSort;
+use crate::graph::hash_table::{Edge, HashTable, VertexId};
+use crate::ordering::topological_sort::{leftward_edges, TopologicalSort};
 use std::collections::HashSet;
 
 /*
@@ -37,71 +37,42 @@ impl<'a> DivideAndConquerByOrderHeuristic<'a> {
 impl<'a> FeedbackArcSet for DivideAndConquerByOrderHeuristic<'a> {
   fn feedback_arc_set(&self) -> HashSet<Edge> {
     let ordering = order(self.graph.clone());
+    debug_assert_eq!(self.graph.vertices().len(), ordering.len());
 
-    collect_leftward_edges(self.graph, ordering)
+    leftward_edges(self.graph, ordering)
   }
-}
-
-fn collect_leftward_edges(graph: &HashTable, ordering: Vec<VertexId>) -> HashSet<Edge> {
-  let mut leftward_edges = HashSet::new();
-
-  for v in ordering {
-    for edge in graph.edges(v, Direction::Outbound) {
-      if edge.1 < v {
-        leftward_edges.insert(edge);
-      }
-    }
-  }
-
-  leftward_edges
 }
 
 fn order(mut g: HashTable) -> Vec<VertexId> {
-  let ordering;
+  let s;
   let edge_count = g.edge_count();
+  let sorted = TopologicalSort::new(&g).sort_by_indegree_asc();
 
   if g.edge_count() == 0 {
-    ordering = g.vertices();
+    s = g.vertices();
   } else if edge_count % 2 == 1 {
-    let v = vertex_with_min_indegree(&g);
-    g.remove_vertex(v);
+    let v = sorted.first().unwrap();
+    g.remove_vertex(*v);
 
-    let mut ordering1 = order(g);
-    ordering1.insert(0, v);
+    let mut s1 = order(g.clone());
+    s1.insert(0, *v);
 
-    ordering = ordering1;
+    s = s1;
   } else {
-    let sorted = TopologicalSort::new(&g).sort_by_indegree_asc();
-    let g1 = subgraph(&g, &sorted[0..sorted.len() / 2]);
-    let g2 = subgraph(&g, &sorted[sorted.len() / 2..sorted.len()]);
+    let first_half = &sorted[0..(sorted.len() / 2)];
+    let second_half = &sorted[(sorted.len() / 2)..sorted.len()];
+
+    let g1 = HashTable::from_graph(&g, first_half);
+    let g2 = HashTable::from_graph(&g, second_half);
+
     let mut s1 = order(g1);
     let s2 = order(g2);
+
     s1.extend(s2);
-    ordering = s1;
+    s = s1;
   }
 
-  ordering
-}
-
-fn subgraph(graph: &HashTable, vertices_to_keep: &[VertexId]) -> HashTable {
-  let edges = graph
-    .vertices()
-    .into_iter()
-    .flat_map(|v| graph.edges(v, Direction::Outbound))
-    .filter(|edge| vertices_to_keep.contains(&edge.0) && vertices_to_keep.contains(&edge.1))
-    .collect::<Vec<_>>();
-
-  HashTable::from_edges(edges.as_slice())
-}
-
-fn vertex_with_min_indegree(graph: &HashTable) -> VertexId {
-  graph
-    .vertices()
-    .iter()
-    .map(|v| (*v, graph.edges(*v, Direction::Inbound).len()))
-    .min_by(|v1, v2| (*v1).1.cmp(&(*v2).1))
-    .unwrap()
-    .0
+  s
 }
 
 #[cfg(test)]
@@ -110,7 +81,9 @@ mod tests {
   use crate::fas::feedback_arc_set::tests::test_feedback_arc_set;
   use crate::fas::feedback_arc_set::FeedbackArcSet;
   use crate::graph::hash_table::HashTable;
-  use crate::tools::metis::graph_from_file;
+  use crate::tools::graphs::{
+    graph_from_file, graph_from_wikipedia_scc, graph_with_multiple_cliques,
+  };
   use std::collections::HashSet;
 
   #[test]
@@ -126,41 +99,7 @@ mod tests {
 
   #[test]
   fn works_on_multiple_cliques() {
-    let edges = [
-      (0, 1),
-      (0, 7),
-      (1, 2),
-      (1, 3),
-      (2, 4),
-      (2, 5),
-      (2, 6),
-      (3, 7),
-      (6, 8),
-      (6, 9),
-      (7, 9),
-      (5, 10),
-      (8, 10),
-      (9, 10),
-      (4, 11),
-      (4, 12),
-      (12, 11),
-      (10, 13),
-      (11, 13),
-      (10, 14),
-      (14, 15),
-      (14, 16),
-      (16, 15),
-      (16, 17),
-      (17, 18),
-      (12, 18),
-      // Ab hier kommen Zyklen rein
-      (13, 2),
-      (7, 1),
-      (6, 7),
-      (15, 10),
-      (15, 13),
-    ];
-    let cyclic_graph = HashTable::from_edges(&edges);
+    let cyclic_graph = graph_with_multiple_cliques();
     let algorithm = DivideAndConquerByOrderHeuristic {
       graph: &cyclic_graph,
     };
@@ -169,7 +108,7 @@ mod tests {
 
   #[test]
   fn works_on_h_001() {
-    let cyclic_graph = graph_from_file("test/resources/heuristic/h_001");
+    let cyclic_graph = graph_from_file("h_001");
     let algorithm = DivideAndConquerByOrderHeuristic {
       graph: &cyclic_graph,
     };
@@ -178,7 +117,16 @@ mod tests {
 
   #[test]
   fn works_on_h_025() {
-    let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
+    let cyclic_graph = graph_from_file("h_025");
+    let algorithm = DivideAndConquerByOrderHeuristic {
+      graph: &cyclic_graph,
+    };
+    test_feedback_arc_set(algorithm, &cyclic_graph);
+  }
+
+  #[test]
+  fn works_on_wikipedia_scc() {
+    let cyclic_graph = graph_from_wikipedia_scc();
     let algorithm = DivideAndConquerByOrderHeuristic {
       graph: &cyclic_graph,
     };
