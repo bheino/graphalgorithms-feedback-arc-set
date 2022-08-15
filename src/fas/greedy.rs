@@ -4,7 +4,7 @@ Procedure GR
 s1 <- ∅; s2 <- ∅;
 while G != ∅ do
     {while G contains a sink do
-        {choose a sink u; s2 <- us2; G <- G - u);
+        {choose a sink u; s2 <- us2; G <&- &G - u);
     while G contains a source do
         {choose a source u; s1 <- s1u; G <- G - u};
     if G != ∅ then
@@ -24,12 +24,12 @@ pub struct GreedyHeuristic<'a> {
 }
 
 impl<'a> GreedyHeuristic<'a> {
-  pub fn new(graph: &'a HashTable) -> Self {
+  fn new(graph: &'a HashTable) -> Self {
     Self { graph }
   }
 }
 
-impl FeedbackArcSet for GreedyHeuristic<'_> {
+impl<'a> FeedbackArcSet for GreedyHeuristic<'a> {
   fn feedback_arc_set(&self) -> HashSet<Edge> {
     let mut container = FasContainer::new(self.graph);
 
@@ -169,57 +169,9 @@ impl FasContainer {
 }
 
 #[cfg(test)]
-mod test {
-  use crate::{
-    fas::feedback_arc_set::FeedbackArcSet, graph::hash_table::HashTable, tools::dot::Dot,
-  };
+mod tests {
+  use super::*;
+  use crate::fas::feedback_arc_set::tests::fas_tests;
 
-  use super::GreedyHeuristic;
-
-  fn graph() -> HashTable {
-    HashTable::from_edges(&[
-      (0, 1),
-      (0, 7),
-      (1, 2),
-      (1, 3),
-      (2, 4),
-      (2, 5),
-      (2, 6),
-      (3, 7),
-      (6, 8),
-      (6, 9),
-      (7, 9),
-      (5, 10),
-      (8, 10),
-      (9, 10),
-      (4, 11),
-      (4, 12),
-      (12, 11),
-      (10, 13),
-      (11, 13),
-      (10, 14),
-      (14, 15),
-      (14, 16),
-      (16, 15),
-      (16, 17),
-      (17, 18),
-      (12, 18),
-      // Ab hier kommen Zyklen rein
-      (13, 2),
-      (7, 1),
-      (6, 7),
-      (15, 10),
-      (15, 13),
-    ])
-  }
-
-  #[test]
-  fn it_works() {
-    let graph = graph();
-
-    print!("{}", Dot::new(&graph));
-
-    let algo = GreedyHeuristic::new(&graph);
-    println!("{:?}", algo.feedback_arc_set());
-  }
+  fas_tests!(GreedyHeuristic, [h_001, h_025]);
 }

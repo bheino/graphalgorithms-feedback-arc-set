@@ -29,12 +29,12 @@ pub struct DivideAndConquerByOrderHeuristic<'a> {
 }
 
 impl<'a> DivideAndConquerByOrderHeuristic<'a> {
-  pub fn new(graph: &'a HashTable) -> Self {
+  fn new(graph: &'a HashTable) -> Self {
     Self { graph }
   }
 }
 
-impl<'a> FeedbackArcSet for DivideAndConquerByOrderHeuristic<'a> {
+impl FeedbackArcSet for DivideAndConquerByOrderHeuristic<'_> {
   fn feedback_arc_set(&self) -> HashSet<Edge> {
     let ordering = order(self.graph.clone());
     debug_assert_eq!(self.graph.vertices().len(), ordering.len());
@@ -77,59 +77,7 @@ fn order(mut g: HashTable) -> Vec<VertexId> {
 
 #[cfg(test)]
 mod tests {
-  use crate::fas::divide_and_conquer_by_order_heuristic::DivideAndConquerByOrderHeuristic;
-  use crate::fas::feedback_arc_set::tests::test_feedback_arc_set;
-  use crate::fas::feedback_arc_set::FeedbackArcSet;
-  use crate::graph::hash_table::HashTable;
-  use crate::tools::graphs::{
-    graph_from_file, graph_from_wikipedia_scc, graph_with_multiple_cliques,
-  };
-  use std::collections::HashSet;
-
-  #[test]
-  fn works_on_simple_clique() {
-    let edges = [(0, 1), (1, 2), (2, 0)];
-    let clique = HashTable::from_edges(&edges);
-
-    let fas = DivideAndConquerByOrderHeuristic { graph: &clique }.feedback_arc_set();
-
-    assert_eq!(fas.len(), 1);
-    assert!(fas.is_subset(&HashSet::from(edges)));
-  }
-
-  #[test]
-  fn works_on_multiple_cliques() {
-    let cyclic_graph = graph_with_multiple_cliques();
-    let algorithm = DivideAndConquerByOrderHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_h_001() {
-    let cyclic_graph = graph_from_file("h_001");
-    let algorithm = DivideAndConquerByOrderHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_h_025() {
-    let cyclic_graph = graph_from_file("h_025");
-    let algorithm = DivideAndConquerByOrderHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_wikipedia_scc() {
-    let cyclic_graph = graph_from_wikipedia_scc();
-    let algorithm = DivideAndConquerByOrderHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
+  use super::*;
+  use crate::fas::feedback_arc_set::tests::fas_tests;
+  fas_tests!(DivideAndConquerByOrderHeuristic, [h_001, h_025]);
 }

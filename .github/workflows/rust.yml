@@ -16,6 +16,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - uses: taiki-e/install-action@nextest
     - name: Format
       run: cargo fmt --all -- --check
     - name: Lint
@@ -23,4 +24,4 @@ jobs:
     - name: Build
       run: cargo build
     - name: Run tests
-      run: cargo test
+      run: cargo nextest run
