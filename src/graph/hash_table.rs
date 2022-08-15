@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub type VertexId = u32;
 pub type Edge = (VertexId, VertexId);
@@ -11,7 +11,7 @@ pub enum Direction {
 
 #[derive(Clone, Debug)]
 pub struct HashTable {
-  data: HashMap<VertexId, Vec<VertexId>>,
+  data: BTreeMap<VertexId, Vec<VertexId>>,
 }
 
 impl HashTable {
@@ -19,7 +19,7 @@ impl HashTable {
 
   pub fn new() -> Self {
     Self {
-      data: HashMap::new(),
+      data: BTreeMap::new(),
     }
   }
 
@@ -126,17 +126,15 @@ impl HashTable {
 
   pub fn all_edges(&self) -> Vec<Edge> {
     self
-      .data
+      .vertices()
       .iter()
-      .fold(vec![], |mut edges, (&source_idx, target_idxs)| {
-        target_idxs
-          .iter()
-          .for_each(|&target_idx| edges.push((source_idx, target_idx)));
+      .fold(vec![], |mut edges, &source_idx| {
+        edges.extend(self.edges(source_idx, Direction::Outbound));
         edges
       })
   }
 
-  pub fn neighborhood(&self, v: VertexId) -> &[VertexId] {
+  pub fn neighborhood(&self, v: &VertexId) -> &[VertexId] {
     self
       .data
       .get(v)

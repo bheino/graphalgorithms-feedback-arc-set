@@ -13,7 +13,7 @@ while G != ∅ do
 s <- s1s2.
 */
 
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
 
@@ -62,15 +62,18 @@ impl FeedbackArcSet for GreedyHeuristic<'_> {
       }
     }
 
-    let s = s1.into_iter().chain(s2).collect::<Vec<_>>();
-    println!("{:?}", s);
+    let s = s1
+      .into_iter()
+      .chain(s2)
+      .enumerate()
+      .map(|(idx, node_idx)| (node_idx, idx))
+      .collect::<HashMap<VertexId, usize>>();
 
-    // TODO
     self
       .graph
       .all_edges()
       .into_iter()
-      .filter(|(source_idx, target_idx)| s[*source_idx as usize] >= s[*target_idx as usize])
+      .filter(|(source_idx, target_idx)| s[source_idx] >= s[target_idx])
       .collect()
   }
 }

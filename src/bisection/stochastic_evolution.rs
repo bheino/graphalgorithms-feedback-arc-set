@@ -142,7 +142,7 @@ impl<'a> StochasticEvolution<'a> {
     cost
   }
 
-  fn gain(&mut self, p0: usize) -> i32 {
+  fn gain(&mut self, _p0: usize) -> i32 {
     // TODO
     0
   }
