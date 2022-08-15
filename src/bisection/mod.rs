@@ -1,4 +1,4 @@
-use crate::graph::hash_table::{HashTable, VertexId};
+use crate::graph::hash_table::{Direction, HashTable, VertexId};
 use std::borrow::Borrow;
 use std::collections::HashSet;
 
@@ -34,6 +34,7 @@ pub struct StochasticEvolution<'a> {
   graph: &'a HashTable,
   current_bisection: (Vec<usize>, Vec<usize>),
   best_bisection: (Vec<usize>, Vec<usize>),
+  vertices: Vec<VertexId>,
 }
 
 impl<'a> StochasticEvolution<'a> {
@@ -42,24 +43,26 @@ impl<'a> StochasticEvolution<'a> {
       graph,
       current_bisection: initial_bisection(graph.vertices().len()),
       best_bisection: initial_bisection(graph.vertices().len()),
+      vertices: graph.vertices(),
     }
   }
 
   pub fn bisection(&mut self) -> (HashSet<VertexId>, HashSet<VertexId>) {
     //Input Parameters:
     let initial_p = -1;
-    debug_assert!(initial_p <= 0);
     let initial_r = 10;
-    debug_assert!(initial_r > 1);
     let initial_delta = 2;
+    debug_assert!(initial_p <= 0);
+    debug_assert!(initial_r > 1);
+    debug_assert!(initial_delta > 0);
 
     let mut p = initial_p;
     let mut counter = 0;
 
     loop {
-      let c_pre = 1;
+      let c_pre = self.cost();
       self.perturb(p);
-      let c_post = 2;
+      let c_post = self.cost();
       if c_post < c_pre {
         self.best_bisection = self.current_bisection.clone();
         counter -= initial_r;
@@ -92,6 +95,22 @@ impl<'a> StochasticEvolution<'a> {
   }
 
   fn perturb(&mut self, p: i32) {}
+
+  // Number of Edges from Partition 2 to Partition 1
+  fn cost(&self) -> usize {
+    let mut cost = 0;
+    for v_2_index in self.current_bisection.1.as_slice() {
+      let v_2 = self.vertices[*v_2_index];
+      for (_, neighbour) in self.graph.edges(v_2, Direction::Outbound) {
+        // check if neighbor is in other partition
+        if self.vertices.contains(&neighbour) {
+          cost += 1;
+        }
+      }
+    }
+
+    cost
+  }
 }
 
 fn initial_bisection(vertices_count: usize) -> (Vec<usize>, Vec<usize>) {
