@@ -63,60 +63,7 @@ impl<'a> FeedbackArcSet for DivideAndConquerByBisectionHeuristic<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::fas::divide_and_conquer_by_bisection_heuristic::DivideAndConquerByBisectionHeuristic;
-  use crate::fas::feedback_arc_set::tests::test_feedback_arc_set;
-  use crate::fas::feedback_arc_set::FeedbackArcSet;
-  use crate::graph::hash_table::HashTable;
-  use crate::tools::graphs::{
-    graph_from_file, graph_from_wikipedia_scc, graph_with_multiple_cliques,
-  };
-  use std::collections::HashSet;
-  /* TODO Commented out, because algorithm still not correct and will eat up free CI-Minutes
-  #[test]
-  fn works_on_simple_clique() {
-    let edges = [(0, 1), (1, 2), (2, 0)];
-    let clique = HashTable::from_edges(&edges);
-
-    let fas = DivideAndConquerByBisectionHeuristic { graph: &clique }.feedback_arc_set();
-
-    assert_eq!(fas.len(), 1);
-    assert!(fas.is_subset(&HashSet::from(edges)));
-  }
-
-  #[test]
-  fn works_on_multiple_cliques() {
-    let cyclic_graph = graph_with_multiple_cliques();
-    let algorithm = DivideAndConquerByBisectionHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_h_001() {
-    let cyclic_graph = graph_from_file("h_001");
-    let algorithm = DivideAndConquerByBisectionHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_h_025() {
-    let cyclic_graph = graph_from_file("h_025");
-    let algorithm = DivideAndConquerByBisectionHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_wikipedia_scc() {
-    let cyclic_graph = graph_from_wikipedia_scc();
-    let algorithm = DivideAndConquerByBisectionHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-  */
+  // use super::*;
+  // use crate::fas::feedback_arc_set::tests::fas_tests;
+  // fas_tests!(DivideAndConquerByBisectionHeuristic, [h_001, h_025]);
 }
