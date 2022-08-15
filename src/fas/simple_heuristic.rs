@@ -18,7 +18,7 @@ while G != empty do
 return F.
  */
 pub struct SimpleHeuristic<'a> {
-  graph: &'a HashTable,
+  pub graph: &'a HashTable,
 }
 
 impl<'a> SimpleHeuristic<'a> {

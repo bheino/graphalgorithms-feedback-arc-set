@@ -25,7 +25,7 @@ order(G)
 return S.
  */
 pub struct DivideAndConquerByOrderHeuristic<'a> {
-  graph: &'a HashTable,
+  pub graph: &'a HashTable,
 }
 
 impl<'a> DivideAndConquerByOrderHeuristic<'a> {

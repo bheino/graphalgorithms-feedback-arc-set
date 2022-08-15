@@ -20,7 +20,7 @@ use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
 use super::feedback_arc_set::FeedbackArcSet;
 
 pub struct GreedyHeuristic<'a> {
-  graph: &'a HashTable,
+  pub graph: &'a HashTable,
 }
 
 impl<'a> GreedyHeuristic<'a> {

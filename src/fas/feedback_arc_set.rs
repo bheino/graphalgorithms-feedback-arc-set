@@ -34,7 +34,7 @@ pub(crate) mod tests {
         paste::paste! {
           #[test]
           fn [<works_on_ $file_name>]() {
-            let cyclic_graph = crate::tools::graphs::graph_from_file("h_025");
+            let cyclic_graph = crate::tools::graphs::graph_from_file(stringify!($file_name));
             let algorithm = $algo {
               graph: &cyclic_graph,
             };

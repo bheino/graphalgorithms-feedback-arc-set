@@ -16,7 +16,7 @@ input graph is quickly decomposed into smaller subgraphs either by function bise
 function scc.
  */
 pub struct DivideAndConquerByBisectionHeuristic<'a> {
-  graph: &'a HashTable,
+  pub graph: &'a HashTable,
 }
 
 impl<'a> DivideAndConquerByBisectionHeuristic<'a> {

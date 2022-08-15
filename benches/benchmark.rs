@@ -1,15 +1,55 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-// use graphalgorithms_feedback_arc_set::algo::greedy_heuristic::GreedyHeuristic;
-// use graphalgorithms_feedback_arc_set::fas::feedback_arc_set::FeedbackArcSet;
-// use graphalgorithms_feedback_arc_set::tools::metis::graph_from_file;
+use graphalgorithms_feedback_arc_set::{
+  fas::{
+    divide_and_conquer_by_order_heuristic::DivideAndConquerByOrderHeuristic,
+    feedback_arc_set::FeedbackArcSet, greedy::GreedyHeuristic, simple_heuristic::SimpleHeuristic,
+  },
+  tools::graphs::graph_from_file,
+};
 
-pub fn criterion_benchmark(_c: &mut Criterion) {
-  //   let cyclic_graph = graph_from_file("test/resources/heuristic/h_025");
-  //   let algo = GreedyHeuristic {};
-  //   c.bench_function("greedy heuristic h_025", |b| {
-  //     b.iter(|| algo.compute_fas(&cyclic_graph))
-  //   });
+pub fn file_benchmarks(c: &mut Criterion) {
+  generate_benchmarks!(
+    c,
+    [
+      SimpleHeuristic,
+      GreedyHeuristic,
+      DivideAndConquerByOrderHeuristic
+    ],
+    [h_001, h_025]
+  );
 }
 
-criterion_group!(benches, criterion_benchmark);
+criterion_group! {
+  name = benches;
+  config = Criterion::default().sample_size(10);
+  targets = file_benchmarks
+}
+
 criterion_main!(benches);
+
+macro_rules! generate_benchmarks {
+  (
+    $bencher: expr,
+    [$($algo: ident),*],
+    $args:tt
+  ) => {
+    $(
+      generate_benchmarks!(@call $bencher, $algo, $args);
+    )*
+  };
+  (@call $bencher:expr, $algo:ident, [$($file_name:ident),*]) => {
+    paste::paste! {
+      $(
+        let cyclic_graph = graph_from_file(stringify!($file_name));
+        let algo = $algo {
+          graph: &cyclic_graph,
+        };
+        $bencher.bench_function(stringify!([<$algo _$file_name>]), |b| {
+          b.iter(|| algo.feedback_arc_set())
+        });
+      )*
+    }
+  }
+}
+
+pub(crate) use generate_benchmarks;
