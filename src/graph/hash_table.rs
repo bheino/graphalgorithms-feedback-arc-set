@@ -1,6 +1,8 @@
 use rand::Rng;
 use std::collections::{BTreeMap, HashSet};
 
+use crate::tools::cycle::CycleDetection;
+
 pub type VertexId = u32;
 pub type Edge = (VertexId, VertexId);
 
@@ -9,10 +11,14 @@ pub enum Direction {
   Outbound,
 }
 
+pub trait GraphDataStructure {}
+
 #[derive(Clone, Debug)]
 pub struct HashTable {
   data: BTreeMap<VertexId, Vec<VertexId>>,
 }
+
+impl GraphDataStructure for HashTable {}
 
 impl HashTable {
   // ======= Creational Methods =======
@@ -124,6 +130,16 @@ impl HashTable {
     }
   }
 
+  pub fn all_edges(&self) -> Vec<Edge> {
+    self
+      .vertices()
+      .iter()
+      .fold(vec![], |mut edges, &source_idx| {
+        edges.extend(self.edges(source_idx, Direction::Outbound));
+        edges
+      })
+  }
+
   pub fn neighborhood(&self, v: &VertexId) -> &[VertexId] {
     self
       .data
@@ -138,6 +154,10 @@ impl HashTable {
       Some(edges) => edges.contains(&v),
       None => false,
     }
+  }
+
+  pub fn is_cyclic(&self) -> bool {
+    CycleDetection::new(self).is_cyclic()
   }
 
   // ======= Mutating Methods =======

@@ -6,38 +6,76 @@ pub trait FeedbackArcSet {
 }
 
 #[cfg(test)]
-pub mod tests {
-  use crate::fas::feedback_arc_set::FeedbackArcSet;
-  use crate::graph::hash_table::{Edge, HashTable};
-  use crate::tools::cycle::CycleDetection;
-  use crate::tools::dot::Dot;
-  use std::collections::HashSet;
+pub(crate) mod tests {
+  macro_rules! fas_tests {
+    (
+      $algo: ident,
+      [$($file_name:ident),*]
+    ) => {
+      fn test_feedback_arc_set(algorithm: &$algo, cyclic_graph: &HashTable) {
+        let mut acyclic_graph = cyclic_graph.clone();
+        let fas = algorithm.feedback_arc_set();
+        fas.into_iter().for_each(|e| acyclic_graph.remove_edge(e));
 
-  pub fn test_feedback_arc_set(algorithm: impl FeedbackArcSet, cyclic_graph: &HashTable) {
-    let is_cyclic = |graph: &HashTable| -> bool { CycleDetection::new(graph).is_cyclic() };
-    assert!(is_cyclic(cyclic_graph), "No cycles found in graph!?");
+        if acyclic_graph.is_cyclic() {
+          let print_dot = |prefix, graph| {
+            println!("{}", prefix);
+            println!("{}", crate::tools::dot::Dot::new(graph));
+          };
 
-    let removable_edges = algorithm.feedback_arc_set();
-    let remove_edges = |cyclic_graph: &HashTable, edges: &HashSet<Edge>| {
-      let mut acyclic_graph = cyclic_graph.clone();
-      for edge in edges {
-        acyclic_graph.remove_edge(*edge);
+          print_dot("Cyclic Graph:", &cyclic_graph);
+          print_dot("Acyclic Graph:", &acyclic_graph);
+
+          panic!("Graph still has cycles!");
+        }
       }
-      acyclic_graph
+
+      $(
+        paste::paste! {
+          #[test]
+          fn [<works_on_ $file_name>]() {
+            let cyclic_graph = crate::tools::graphs::graph_from_file("h_025");
+            let algorithm = $algo {
+              graph: &cyclic_graph,
+            };
+
+            test_feedback_arc_set(&algorithm, &cyclic_graph);
+          }
+        }
+      )*
+
+      #[test]
+      fn works_on_wikipedia_scc() {
+        let mut cyclic_graph = crate::tools::graphs::graph_from_wikipedia_scc();
+        assert!(cyclic_graph.is_cyclic());
+
+        let algorithm = $algo {
+              graph: &cyclic_graph,
+            };
+        let fas = algorithm.feedback_arc_set();
+
+        fas.into_iter().for_each(|e| cyclic_graph.remove_edge(e));
+
+        assert!(!cyclic_graph.is_cyclic())
+      }
+
+      #[test]
+      fn works_on_simple_clique() {
+        let edges = [(0, 1), (1, 2), (2, 0)];
+        let clique = HashTable::from_edges(&edges);
+        let fas = $algo { graph: &clique }.feedback_arc_set();
+
+        assert_eq!(fas.len(), 1);
+        assert!(fas.is_subset(&HashSet::from(edges)));
+      }
+
+      #[test]
+      fn works_on_multiple_cliques() {
+        let clique = crate::tools::graphs::graph_with_multiple_cliques();
+        let algorithm = $algo { graph: &clique };
+        test_feedback_arc_set(&algorithm, &clique);
+      }
     };
-
-    let acyclic_graph = remove_edges(cyclic_graph, &removable_edges);
-
-    if is_cyclic(&acyclic_graph) {
-      let print_dot = |prefix, graph| {
-        println!("{}", prefix);
-        println!("{}", Dot::new(graph));
-      };
-
-      print_dot("Cyclic Graph:", cyclic_graph);
-      print_dot("Acyclic Graph:", &acyclic_graph);
-
-      panic!("Graph still has cycles!");
-    }
   }
+  pub(crate) use fas_tests;
 }

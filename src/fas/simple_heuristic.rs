@@ -22,12 +22,12 @@ pub struct SimpleHeuristic<'a> {
 }
 
 impl<'a> SimpleHeuristic<'a> {
-  pub fn new(graph: &'a HashTable) -> Self {
+  fn new(graph: &'a HashTable) -> Self {
     Self { graph }
   }
 }
 
-impl<'a> FeedbackArcSet for SimpleHeuristic<'a> {
+impl FeedbackArcSet for SimpleHeuristic<'_> {
   fn feedback_arc_set(&self) -> HashSet<Edge> {
     let mut graph = self.graph.clone();
     let mut fas = HashSet::new();
@@ -59,60 +59,8 @@ impl<'a> FeedbackArcSet for SimpleHeuristic<'a> {
 
 #[cfg(test)]
 mod tests {
-  use crate::fas::feedback_arc_set::tests::test_feedback_arc_set;
-  use crate::fas::feedback_arc_set::FeedbackArcSet;
-  use crate::fas::simple_heuristic::SimpleHeuristic;
-  use crate::graph::hash_table::HashTable;
-  use crate::tools::graphs::{
-    graph_from_file, graph_from_wikipedia_scc, graph_with_multiple_cliques,
-  };
-  use std::collections::HashSet;
+  use super::*;
+  use crate::fas::feedback_arc_set::tests::fas_tests;
 
-  #[test]
-  fn works_on_simple_clique() {
-    let edges = [(0, 1), (1, 2), (2, 0)];
-    let clique = HashTable::from_edges(&edges);
-
-    let fas = SimpleHeuristic { graph: &clique }.feedback_arc_set();
-
-    assert_eq!(fas.len(), 1);
-    assert!(fas.is_subset(&HashSet::from(edges)));
-  }
-
-  #[test]
-  fn works_on_multiple_cliques() {
-    let cyclic_graph = graph_with_multiple_cliques();
-    let algorithm = SimpleHeuristic {
-      graph: &cyclic_graph,
-    };
-
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_h_001() {
-    let cyclic_graph = graph_from_file("h_001");
-    let algorithm = SimpleHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_h_025() {
-    let cyclic_graph = graph_from_file("h_025");
-    let algorithm = SimpleHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
-
-  #[test]
-  fn works_on_wikipedia_scc() {
-    let cyclic_graph = graph_from_wikipedia_scc();
-    let algorithm = SimpleHeuristic {
-      graph: &cyclic_graph,
-    };
-    test_feedback_arc_set(algorithm, &cyclic_graph);
-  }
+  fas_tests!(SimpleHeuristic, [h_001, h_025]);
 }
