@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub type VertexId = u32;
 pub type Edge = (VertexId, VertexId);
@@ -11,7 +11,7 @@ pub enum Direction {
 
 #[derive(Clone, Debug)]
 pub struct HashTable {
-  data: HashMap<VertexId, Vec<VertexId>>,
+  data: BTreeMap<VertexId, Vec<VertexId>>,
 }
 
 impl HashTable {
@@ -19,7 +19,7 @@ impl HashTable {
 
   pub fn new() -> Self {
     Self {
-      data: HashMap::new(),
+      data: BTreeMap::new(),
     }
   }
 

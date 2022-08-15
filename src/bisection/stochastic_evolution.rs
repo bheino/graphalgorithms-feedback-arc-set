@@ -108,10 +108,10 @@ impl<'a> StochasticEvolution<'a> {
     let bisection;
     let mut stack;
     if self.current_bisection.0.len() > self.current_bisection.1.len() {
-      bisection = &self.current_bisection.0;
+      bisection = self.current_bisection.0.clone();
       stack = s1;
     } else {
-      bisection = &self.current_bisection.1;
+      bisection = self.current_bisection.1.clone();
       stack = s2;
     }
 
@@ -227,7 +227,6 @@ mod tests {
     let gain = algorithm.gain(i_to_move);
     let gain_back = algorithm.gain(i_to_move);
 
-    // TODO doing gain two times is not the same (maybe because cost behaves unstable...)
     assert_eq!(gain + gain_back, 0);
     assert_eq!(gain.abs(), gain_back.abs());
   }
@@ -241,7 +240,6 @@ mod tests {
     let cost_2 = algorithm.cost();
 
     assert_eq!(cost_1, cost_2);
-    // TODO cost is different on each test run. Why?
-    // assert_eq!(cost_1, 4);
+    assert_eq!(cost_1, 2);
   }
 }
