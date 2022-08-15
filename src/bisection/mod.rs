@@ -1,4 +1,5 @@
 use crate::graph::hash_table::{Direction, HashTable, VertexId};
+use rand::Rng;
 use std::borrow::Borrow;
 use std::collections::HashSet;
 
@@ -30,6 +31,9 @@ repeat
 until counter > R
 return (B1 , B2 ).
  */
+
+const ALPHA: f32 = 0.6;
+
 pub struct StochasticEvolution<'a> {
   graph: &'a HashTable,
   current_bisection: (Vec<usize>, Vec<usize>),
@@ -94,10 +98,39 @@ impl<'a> StochasticEvolution<'a> {
     )
   }
 
-  fn perturb(&mut self, p: i32) {}
+  fn perturb(&mut self, p: i32) {
+    let mut s1 = vec![];
+    let mut s2 = vec![];
+
+    for i in 0..self.vertices.len() {
+      if self.gain(i) > rand::thread_rng().gen_range(p..0) {
+        self.move_vertex(i);
+        if self.current_bisection.0.contains(&i) {
+          s1.push(i);
+        } else {
+          s2.push(i);
+        }
+      }
+    }
+
+    let bisection;
+    let mut stack;
+    if self.current_bisection.0.len() > self.current_bisection.1.len() {
+      bisection = self.current_bisection.0.clone();
+      stack = s1;
+    } else {
+      bisection = self.current_bisection.1.clone();
+      stack = s2;
+    }
+
+    while bisection.len() as f32 > (ALPHA * self.vertices.len() as f32) {
+      let i = stack.pop().unwrap();
+      self.move_vertex(i);
+    }
+  }
 
   // Number of Edges from Partition 2 to Partition 1
-  fn cost(&self) -> usize {
+  fn cost(&mut self) -> usize {
     let mut cost = 0;
     for v_2_index in self.current_bisection.1.as_slice() {
       let v_2 = self.vertices[*v_2_index];
@@ -110,6 +143,14 @@ impl<'a> StochasticEvolution<'a> {
     }
 
     cost
+  }
+
+  fn gain(&mut self, p0: usize) -> i32 {
+    todo!()
+  }
+
+  fn move_vertex(&mut self, i: usize) {
+    todo!()
   }
 }
 
