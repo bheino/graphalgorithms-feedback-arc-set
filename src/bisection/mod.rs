@@ -1,4 +1,5 @@
 use crate::graph::hash_table::{HashTable, VertexId};
+use std::borrow::Borrow;
 use std::collections::HashSet;
 
 mod stochastic_evolution;
@@ -31,14 +32,50 @@ return (B1 , B2 ).
  */
 pub struct StochasticEvolution<'a> {
   graph: &'a HashTable,
+  current_bisection: (Vec<usize>, Vec<usize>),
+  best_bisection: (Vec<usize>, Vec<usize>),
 }
 
 impl<'a> StochasticEvolution<'a> {
   pub fn new(graph: &'a HashTable) -> Self {
-    Self { graph }
+    Self {
+      graph,
+      current_bisection: initial_bisection(graph.vertices().len()),
+      best_bisection: initial_bisection(graph.vertices().len()),
+    }
   }
 
-  pub fn bisection(&self) -> (HashSet<VertexId>, HashSet<VertexId>) {
+  pub fn bisection(&mut self) -> (HashSet<VertexId>, HashSet<VertexId>) {
+    //Input Parameters:
+    let initial_p = -1;
+    debug_assert!(initial_p <= 0);
+    let initial_r = 10;
+    debug_assert!(initial_r > 1);
+    let initial_delta = 2;
+
+    let mut p = initial_p;
+    let mut counter = 0;
+
+    loop {
+      let c_pre = 1;
+      self.perturb(p);
+      let c_post = 2;
+      if c_post < c_pre {
+        self.best_bisection = self.current_bisection.clone();
+        counter -= initial_r;
+      } else {
+        counter += 1;
+      }
+      if c_post == c_pre {
+        p -= initial_delta;
+      } else {
+        p = initial_p;
+      }
+      if counter > initial_r {
+        break;
+      }
+    }
+
     self.dummy_result()
   }
 
@@ -53,6 +90,15 @@ impl<'a> StochasticEvolution<'a> {
       ),
     )
   }
+
+  fn perturb(&mut self, p: i32) {}
+}
+
+fn initial_bisection(vertices_count: usize) -> (Vec<usize>, Vec<usize>) {
+  (
+    (0..(vertices_count / 2)).collect(),
+    ((vertices_count / 2)..vertices_count).collect(),
+  )
 }
 
 #[cfg(test)]
