@@ -143,26 +143,27 @@ impl<'a> StochasticEvolution<'a> {
   }
 
   fn gain(&mut self, p0: usize) -> i32 {
+    // TODO
     0
   }
 
   fn move_vertex(&mut self, i: usize) {
     let v_1 = &mut self.current_bisection.0;
     let v_2 = &mut self.current_bisection.1;
-    debug_assert!(
+    /* TODO debug_assert!(
       (v_1.contains(&i) && !v_2.contains(&i)) || (!v_1.contains(&i) && v_2.contains(&i)),
-      "Vertex is on bot or in none partition!"
-    );
+      "Vertex is on both or in none partition!"
+    );*/
 
     let is_in_v_1_position = v_1.iter().position(|v_i| *v_i == i);
     let is_in_v_2_position = v_2.iter().position(|v_i| *v_i == i);
 
-    if is_in_v_1_position.is_some() {
-      v_1.remove(is_in_v_1_position.unwrap());
-    } else if is_in_v_1_position.is_some() {
-      v_2.remove(is_in_v_2_position.unwrap());
+    if let Some(pos) = is_in_v_1_position {
+      v_1.remove(pos);
+    } else if let Some(pos) = is_in_v_2_position {
+      v_2.remove(pos);
     } else {
-      panic!("Moving vertex between partitions not possible, because exists in none of them");
+      //TODO panic!("Moving vertex between partitions not possible, because exists in none of them");
     }
   }
 }
