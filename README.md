@@ -3,7 +3,17 @@
 - [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 236
 - Einfache Heuristik, die das FAS anhand der Anzahl ein- und ausgehender Kanten eines Knoten aufbaut
 - Einschränkung: Laut Paper nur auf planaren Graphen korrekt
-- Implementierung: [simple_heuristic.rs](fas/simple_heuristic.rs)
+- Implementierung: *src/fas/simple_heuristic.rs*
+
+## Eades, Smyth and Lin, 1989
+- [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 238/239
+- Divide-And-Conquer Heuristik, die 
+  - den Graphen in Supgraphen zerlegt
+  - sich zu Nutze macht, dass in einer topologischen Sortierung die linksgerichteten Kanten ein FAS bilden
+- Qualität abhängig von gewählter Sortierung
+- Verwendete Unter-Algorithmen:
+  - Topologische Sortierung nach Anzahl eingehender Knoten (*order/topological_sort.rs*) 
+- Implementierung: *src/fas/divide_and_conquer_by_order_heuristic.rs*
 
 # Benchmarks
 - Testsystem
