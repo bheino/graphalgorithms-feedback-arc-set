@@ -13,7 +13,7 @@ while G != ∅ do
 s <- s1s2.
 */
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
 use crate::graph::hash_table::{Direction, Edge, HashTable, VertexId};
 
@@ -104,7 +104,7 @@ impl FasNode {
 #[derive(Debug, Clone)]
 struct FasContainer {
   deleted_nodes: Vec<VertexId>,
-  fas_nodes: HashMap<VertexId, FasNode>,
+  fas_nodes: BTreeMap<VertexId, FasNode>,
 }
 
 impl FasContainer {
@@ -112,7 +112,7 @@ impl FasContainer {
     let fas_nodes = graph
       .vertices()
       .iter()
-      .fold(HashMap::new(), |mut fas_nodes, &vertex_id| {
+      .fold(BTreeMap::new(), |mut fas_nodes, &vertex_id| {
         let out_edges = graph
           .edges(vertex_id, Direction::Outbound)
           .into_iter()
