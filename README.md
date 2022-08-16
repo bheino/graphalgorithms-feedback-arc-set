@@ -1,3 +1,6 @@
+[![CI](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml)
+[![Coverage](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml)
+
 # Algorithmen für Feedback-Arc-Set
 ## Berger and Shor, 1990
 - [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 236
@@ -28,7 +31,7 @@
   - Fehler im Paper auf Seite 243: Statt *Cpre = cost(V1, V2)* muss *Cpre = cost(B1, B2)* sein, da die Kosten ja immmer besser werden sollen!
   - Fehler im Paper auf Seite 241: Der Algorithmus macht einen endlosen rekursiven Abstieg. Der Code *fas(G[V1 ]) ∪ fas(G[V2 ])* ist unserer Meinung nach überflüssig, da V1 und V2 die Bisektion einer SCC sind und somit keinen Zyklus haben KÖNNEN.
   - Der Algorithmus funktioniert dennoch nicht korrekt. **Daher Tests deaktiviert und keine Benchmarks durchgeführt!** Vermutlich weiterer Logik-Fehler   
-  - **Implementierung:** *fas/divide_and_conquer_by_bisection.rs*
+  - **Implementierung:** *src/fas/divide_and_conquer_by_bisection.rs*
 
 ## Eades, Smyth and Lin, 1993
 - [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 238/239
@@ -39,16 +42,21 @@
 - Qualität abhängig von Auswahl gewählten Knotens, wenn keine Sinks/Sources vorhanden
 - **Implementierung:** *src/fas/greedy_heuristic.rs*
 
+# Tests
+- Unter-Algorithmen werden in gleicher Datei einzeln getestet
+- Alle FAS-Algorithmen durchlaufen die gleichen Tests
+  - Definiert in *src/fas/feedback_arc_set.rs*  
+
 # Benchmarks
-- Testsystem
-- Durchführung
-- Ergebnisse
+## Testsystem
 
-# graphalgorithms-feedback-arc-set
-[![CI](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml)
-[![Coverage](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml)
+## Definition & Durchführung
+- *benches/benchmark.rs*
 
-## Used Literature
+## Ergebnisse
+- *some/path*
+
+# Literatur
 - PACE 2022
   - Input format: https://pacechallenge.org/2022/tracks/#input-format
   - Example cyclic graphs: https://pacechallenge.org/2022/01/12/public-instances/
@@ -66,7 +74,7 @@
   - Kosaraju's Algorithm: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
   - Tarjan's Algorithm: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 
-## Used Libraries
+# Bibliotheken
 - Benchmarking: https://docs.rs/criterion/latest/criterion/
 - Graph datastructure & Greedy Feedbac Arc Set Algorithm: https://docs.rs/petgraph/latest/petgraph/
 - Coverage: https://github.com/xd009642/tarpaulin
