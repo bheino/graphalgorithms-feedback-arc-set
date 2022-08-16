@@ -64,7 +64,8 @@ cargo bench
 - Definition: *benches/benchmark.rs*
 
 ## Ergebnisse
-- *some/path*
+- Ergebnisse in GitHub unter *Actions -> Benchmark Workflow -> Neuesten Run auswählen -> Download unter "Artifacts"*
+- Ergebnisse abgelegt im Quellcode unter *benches/report/index.html*
 
 # Literatur
 - PACE 2022
