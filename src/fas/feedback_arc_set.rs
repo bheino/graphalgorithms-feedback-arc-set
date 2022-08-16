@@ -15,6 +15,7 @@ pub(crate) mod tests {
       fn test_feedback_arc_set(algorithm: &$algo, cyclic_graph: &HashTable) {
         let mut acyclic_graph = cyclic_graph.clone();
         let fas = algorithm.feedback_arc_set();
+        println!("FAS: {:?}", fas.len());
         fas.into_iter().for_each(|e| acyclic_graph.remove_edge(e));
 
         if acyclic_graph.is_cyclic() {
