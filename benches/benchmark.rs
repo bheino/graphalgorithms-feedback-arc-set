@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use criterion::{criterion_group, criterion_main, Criterion};
 use graphalgorithms_feedback_arc_set::{
   fas::{
@@ -25,7 +27,7 @@ pub fn file_benchmarks(c: &mut Criterion) {
 
 criterion_group! {
   name = benches;
-  config = Criterion::default();
+  config = Criterion::default().measurement_time(Duration::from_secs(30));
   targets = file_benchmarks
 }
 
