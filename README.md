@@ -59,6 +59,8 @@ cargo test
 cargo bench
 ```
 - **Achtung!** Die Benchmarks laufen nicht parallel, sondern nur auf **einer* CPU
+- Gemessen wird die Laufzeit.
+- Die Güte des Ergebnis (Größe des FAS) im Verhältnis zur Laufzeit wäre ein weiteres Merkmal, wird jedoch nicht gemessen.
 - Definition: *benches/benchmark.rs*
 
 ## Ergebnisse
