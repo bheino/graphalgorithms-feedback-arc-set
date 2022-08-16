@@ -49,6 +49,7 @@
 
 # Benchmarks
 ## Testsystem
+![Benchmark System](benches/test_system.png)
 
 ## Definition & Durchführung
 - *benches/benchmark.rs*
