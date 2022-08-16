@@ -10,6 +10,7 @@ use graphalgorithms_feedback_arc_set::{
 pub fn file_benchmarks(c: &mut Criterion) {
   generate_benchmarks!(
     c,
+    "File Benchmarks",
     [
       SimpleHeuristic,
       GreedyHeuristic,
@@ -21,7 +22,7 @@ pub fn file_benchmarks(c: &mut Criterion) {
 
 criterion_group! {
   name = benches;
-  config = Criterion::default().sample_size(10);
+  config = Criterion::default();
   targets = file_benchmarks
 }
 
@@ -30,12 +31,16 @@ criterion_main!(benches);
 macro_rules! generate_benchmarks {
   (
     $bencher: expr,
+    $name: expr,
     [$($algo: ident),*],
     $args:tt
   ) => {
+    let mut group = $bencher.benchmark_group($name.to_string());
+    group.sampling_mode(criterion::SamplingMode::Flat);
     $(
-      generate_benchmarks!(@call $bencher, $algo, $args);
+      generate_benchmarks!(@call group, $algo, $args);
     )*
+    group.finish()
   };
   (@call $bencher:expr, $algo:ident, [$($file_name:ident),*]) => {
     paste::paste! {
@@ -45,7 +50,7 @@ macro_rules! generate_benchmarks {
           graph: &cyclic_graph,
         };
         $bencher.bench_function(stringify!([<$algo _$file_name>]), |b| {
-          b.iter(|| algo.feedback_arc_set())
+          b.iter(|| criterion::black_box(algo.feedback_arc_set()))
         });
       )*
     }

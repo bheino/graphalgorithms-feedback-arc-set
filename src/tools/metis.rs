@@ -99,8 +99,6 @@ mod tests {
     assert_eq!(e_001.expected_vertex_count, expected_vertex_count);
     assert_eq!(e_001.expected_edge_count, expected_edge_count);
     assert_eq!(e_001.edges.len(), e_001.expected_edge_count);
-
-    println!("{:?}", e_001.edges);
   }
 
   #[test]
