@@ -30,6 +30,15 @@
   - Der Algorithmus funktioniert dennoch nicht korrekt. **Daher Tests deaktiviert und keine Benchmarks durchgeführt!** Vermutlich weiterer Logik-Fehler   
   - **Implementierung:** *fas/divide_and_conquer_by_bisection.rs*
 
+## Eades, Smyth and Lin, 1993
+- [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 238/239
+- Grundversion mit zufälliger Knotenauswahl auch in [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 238 beschrieben
+- Greedy Heuristik, die 
+  - Sinks, Sources und - falls nicht vorhanden - Knoten mit maximalen Delta zwischen Anzahl ein-/ausgehender Kanten betrachtet
+  - sich zu Nutze macht, dass in einer topologischen Sortierung die linksgerichteten Kanten ein FAS bilden
+- Qualität abhängig von Auswahl gewählten Knotens, wenn keine Sinks/Sources vorhanden
+- **Implementierung:** *src/fas/greedy_heuristic.rs*
+
 # Benchmarks
 - Testsystem
 - Durchführung
