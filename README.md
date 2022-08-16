@@ -1,3 +1,15 @@
+# Algorithmen für Feedback-Arc-Set
+## Berger and Shor, 1990
+- [Saab](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.7745&rep=rep1&type=pdf), Seite 236
+- Einfache Heuristik, die das FAS anhand der Anzahl ein- und ausgehender Kanten eines Knoten aufbaut
+- Einschränkung: Laut Paper nur auf planaren Graphen korrekt
+- Implementierung: [simple_heuristic.rs](fas/simple_heuristic.rs)
+
+# Benchmarks
+- Testsystem
+- Durchführung
+- Ergebnisse
+
 # graphalgorithms-feedback-arc-set
 [![CI](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/rust.yml)
 [![Coverage](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml/badge.svg)](https://github.com/boerdy/graphalgorithms-feedback-arc-set/actions/workflows/coverage.yml)
