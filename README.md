@@ -43,7 +43,10 @@
 - **Implementierung:** *src/fas/greedy_heuristic.rs*
 
 # Tests
-- Unter-Algorithmen werden in gleicher Datei einzeln getestet
+```bash
+cargo test
+```
+- Tests der Unter-Algorithmen in gleicher Datei wie Implementierung
 - Alle FAS-Algorithmen durchlaufen die gleichen Tests
   - Definiert in *src/fas/feedback_arc_set.rs*  
 
@@ -52,7 +55,10 @@
 ![Benchmark System](benches/test_system.png)
 
 ## Definition & Durchführung
-- *benches/benchmark.rs*
+```bash
+cargo bench
+```
+- Definition: *benches/benchmark.rs*
 
 ## Ergebnisse
 - *some/path*
